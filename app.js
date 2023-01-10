@@ -9,9 +9,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const server = express();
+
+// application specific middleware
 server.use(morgan("tiny"));
 server.use(express.json());
 
+// routes
 server.get("/", (req, res) => {
   res.send("Hello World!");
 });
