@@ -3,6 +3,7 @@ import express from "express";
 import connectDB from "./db/connectDB.js";
 import errorHandlerMiddleware from "./middleware/error-handler-middleware.js";
 import notFoundRoute from "./middleware/not-found-middleware.js";
+import authRouter from "./routes/authRoutes.js";
 import morgan from "morgan";
 import dotenv from "dotenv";
 
@@ -16,8 +17,10 @@ server.use(express.json());
 
 // routes
 server.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Test the main route --->  /api/v1/auth");
 });
+
+server.use("/api/v1/auth", authRouter);
 
 // error handler & not found middleware
 server.use(notFoundRoute);
