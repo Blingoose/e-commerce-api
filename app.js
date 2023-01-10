@@ -1,15 +1,24 @@
 import http from "http";
 import express from "express";
 import connectDB from "./db/connectDB.js";
+import errorHandlerMiddleware from "./middleware/error-handler-middleware.js";
+import notFoundRoute from "./middleware/not-found-middleware.js";
+import morgan from "morgan";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 const server = express();
+server.use(morgan("tiny"));
 server.use(express.json());
 
 server.get("/", (req, res) => {
   res.send("Hello World!");
 });
+
+// error handler & not found middleware
+server.use(notFoundRoute);
+server.use(errorHandlerMiddleware);
 
 const PORT = process.env.PORT || 8000;
 const start = async () => {
