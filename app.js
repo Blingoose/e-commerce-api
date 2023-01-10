@@ -5,15 +5,16 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const server = express();
-const PORT = process.env.PORT || 8000;
+server.use(express.json());
 
+server.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+
+const PORT = process.env.PORT || 8000;
 const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);
-
-    server.get("/", (req, res) => {
-      res.send("Hello World!");
-    });
 
     http.createServer(server).listen(PORT, function () {
       console.info("Server is running on:", this.address());
