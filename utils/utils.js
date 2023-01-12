@@ -18,7 +18,7 @@ export const checkIfArrayHasMoreThanOne = (arr) => {
 export const checkIfWordStartsWithVowel = (word) => {
   const vowel = "aeiou";
   if (Array.isArray(word)) {
-    const firstCharOfFirstWord = word[0].charAt(0);
+    const firstCharOfFirstWord = word[0].charAt(0).toLowerCase();
     return vowel.indexOf(firstCharOfFirstWord) !== -1 ? true : false;
   } else {
     return vowel.indexOf(word.charAt(0)) !== -1 ? true : false;
