@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import {
   replaceLastCommaWithAnd,
   checkIfArrayHasMoreThanOne,
-  checkIfWordStartWithVowel,
+  checkIfWordStartsWithVowel,
 } from "../utils/utils.js";
 
 const errorHandlerMiddleware = (err, req, res, next) => {
@@ -21,16 +21,13 @@ const errorHandlerMiddleware = (err, req, res, next) => {
     const fieldArr = Object.keys(err.errors);
     if (checkIfArrayHasMoreThanOne(fieldArr)) {
       const convertFieldToPlural = replaceLastCommaWithAnd(fieldArr);
-
       customError.msg = `Validation failed. Please provide ${convertFieldToPlural} fields`;
     } else {
       // if only one field is missing
       customError.msg = `Validation failed. Please provide ${
-        checkIfWordStartWithVowel(fieldArr) ? "an" : "a"
+        checkIfWordStartsWithVowel(fieldArr) ? "an" : "a"
       } ${fieldArr} field`;
     }
-    // const lastOccuranceOfComma = fieldToString.split("").lastIndexOf(",");
-    // const replace
   }
   res.status(customError.statusCode).json({ errMsg: customError.msg });
   // res.status(customError.statusCode).json({ err });

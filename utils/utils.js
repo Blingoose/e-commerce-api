@@ -1,6 +1,5 @@
 // find last occurance of comma in an array and replace it with "and"
 // Usage exmple: a,b,c will become a,b and c.
-
 export const replaceLastCommaWithAnd = (arr) => {
   const fieldToString = arr.join(", ");
   //! Explanation: /,(?=[^,]*$)/  I.E find the last comma in a string.
@@ -16,7 +15,7 @@ export const checkIfArrayHasMoreThanOne = (arr) => {
   return isPlural;
 };
 
-export const checkIfWordStartWithVowel = (word) => {
+export const checkIfWordStartsWithVowel = (word) => {
   const vowel = "aeiou";
   if (Array.isArray(word)) {
     const firstCharOfFirstWord = word[0].charAt(0);
