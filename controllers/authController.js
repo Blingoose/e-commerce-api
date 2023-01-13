@@ -1,6 +1,6 @@
 import asyncWrapper from "../middleware/asyncWrapper.js";
 import User from "../models/User.js";
-import customErrors from "../errors/error-index.js";
+import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
 
@@ -23,22 +23,24 @@ const authControllers = {
   login: asyncWrapper(async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
-      throw new customErrors.BadRequestError("Password and email are required");
+      throw new CustomErrors.BadRequestError(
+        "Please provide password and email"
+      );
     }
 
     const user = await User.findOne({ email });
     if (!user) {
-      throw new customErrors.UnauthorizedError(`User ${email} doesn't exist`);
+      throw new CustomErrors.UnauthorizedError(`User ${email} doesn't exist`);
     }
 
     const isPasswordCorrect = await user.comparePassword(password);
     if (!isPasswordCorrect) {
-      throw new customErrors.UnauthorizedError("Invalid password");
+      throw new CustomErrors.UnauthorizedError("Invalid password");
     }
 
     const tokenUser = { name: user.name, userId: user._id, role: user.role };
     jwtHandler.attachCookiesToResponse({ res, user: tokenUser });
-    res.status(StatusCodes.OK).json({ user });
+    res.status(StatusCodes.OK).json({ user: tokenUser });
   }),
 
   logout: asyncWrapper(async (req, res, next) => {
