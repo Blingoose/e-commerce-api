@@ -5,6 +5,7 @@ import errorHandlerMiddleware from "./middleware/error-handler-middleware.js";
 import notFoundRoute from "./middleware/not-found-middleware.js";
 import authRouter from "./routes/authRoutes.js";
 import morgan from "morgan";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -14,11 +15,17 @@ const server = express();
 // application specific middleware
 server.use(morgan("tiny"));
 server.use(express.json());
+server.use(cookieParser());
 
 // routes
 server.get("/", (req, res) => {
   res.send("Test the main route --->  /api/v1/auth");
 });
+
+// server.get("/api/v1", (req, res) => {
+//   console.log(req.cookies);
+//   res.send("Test cookies");
+// });
 
 server.use("/api/v1/auth", authRouter);
 
