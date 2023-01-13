@@ -21,7 +21,24 @@ const authControllers = {
   }),
 
   login: asyncWrapper(async (req, res, next) => {
-    res.send("Login user controller");
+    const { email, password } = req.body;
+    if (!email || !password) {
+      throw new customErrors.BadRequestError("Password and email are required");
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new customErrors.UnauthorizedError(`User ${email} doesn't exist`);
+    }
+
+    const isPasswordCorrect = await user.comparePassword(password);
+    if (!isPasswordCorrect) {
+      throw new customErrors.UnauthorizedError("Invalid password");
+    }
+
+    const tokenUser = { name: user.name, userId: user._id, role: user.role };
+    jwtHandler.attachCookiesToResponse({ res, user: tokenUser });
+    res.status(StatusCodes.OK).json({ user });
   }),
 
   logout: asyncWrapper(async (req, res, next) => {
