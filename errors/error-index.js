@@ -3,11 +3,11 @@ import BadRequestError from "./bad-request-error.js";
 import NotFoundError from "./not-found-error.js";
 import UnauthorizedError from "./unauthorized-error.js";
 
-const customErrors = {
+const CustomErrors = {
   CustomErrorClass,
   BadRequestError,
   NotFoundError,
   UnauthorizedError,
 };
 
-export default customErrors;
+export default CustomErrors;
