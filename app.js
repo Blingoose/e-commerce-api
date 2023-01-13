@@ -15,17 +15,17 @@ const server = express();
 // application specific middleware
 server.use(morgan("tiny"));
 server.use(express.json());
-server.use(cookieParser());
+server.use(cookieParser(process.env.JWT_SECRET));
 
 // routes
 server.get("/", (req, res) => {
   res.send("Test the main route --->  /api/v1/auth");
 });
 
-// server.get("/api/v1", (req, res) => {
-//   console.log(req.cookies);
-//   res.send("Test cookies");
-// });
+server.get("/api/v1", (req, res) => {
+  console.log(req.signedCookies);
+  res.send("Test cookies");
+});
 
 server.use("/api/v1/auth", authRouter);
 
