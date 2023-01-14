@@ -44,7 +44,11 @@ const authControllers = {
   }),
 
   logout: asyncWrapper(async (req, res, next) => {
-    res.send("Logout controller");
+    res.cookie("token", "logout", {
+      httpOnly: true,
+      expires: new Date(Date.now()),
+    });
+    res.status(StatusCodes.OK).send({ msg: "Logged-out" });
   }),
 };
 
