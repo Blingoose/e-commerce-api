@@ -22,6 +22,7 @@ server.get("/", (req, res) => {
   res.send("Test the main route --->  /api/v1/auth");
 });
 
+//* TO REMOVE LATER (for testing purposes)
 server.get("/api/v1", (req, res) => {
   console.log(req.signedCookies);
   res.send("Test cookies");
