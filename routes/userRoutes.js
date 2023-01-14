@@ -10,6 +10,7 @@ userRouter
   .route("/updateUserPassword")
   .post(userControllers.updateUserPassword);
 
+// dynamic route, keep on bottom
 userRouter.route("/:id").get(userControllers.getSingleUser);
 
 export default userRouter;
