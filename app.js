@@ -4,6 +4,7 @@ import connectDB from "./db/connectDB.js";
 import errorHandlerMiddleware from "./middleware/error-handler-middleware.js";
 import notFoundRoute from "./middleware/not-found-middleware.js";
 import authRouter from "./routes/authRoutes.js";
+import userRouter from "./routes/userRoutes.js";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
@@ -17,18 +18,19 @@ server.use(morgan("tiny"));
 server.use(express.json());
 server.use(cookieParser(process.env.JWT_SECRET));
 
-// routes
 server.get("/", (req, res) => {
   res.send("Test the main route --->  /api/v1/auth");
 });
 
-//* TO REMOVE LATER (for testing purposes)
+//! TO REMOVE LATER (for testing purposes)
 server.get("/api/v1", (req, res) => {
   console.log(req.signedCookies);
   res.send("Test cookies");
 });
 
+// routes
 server.use("/api/v1/auth", authRouter);
+server.use("/api/v1/users", userRouter);
 
 // error handler & not found middleware
 server.use(notFoundRoute);
