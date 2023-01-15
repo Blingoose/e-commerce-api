@@ -9,8 +9,10 @@ export const authenticateUser = asyncWrapper(async (req, res, next) => {
   if (!token) {
     throw new CustomErrors.UnauthorizedError("Authentication invalid");
   }
+
   try {
     const payload = jwtHandler.isTokenValid({ token });
+
     req.user = {
       userId: payload.userId,
       name: payload.name,
@@ -24,8 +26,7 @@ export const authenticateUser = asyncWrapper(async (req, res, next) => {
 });
 
 export const authorizePermissions = asyncWrapper(async (req, res, next) => {
-  console.log("Authorize admin route");
-  if (req.user.role === "user") {
+  if (req.user.role !== "admin") {
     throw new CustomErrors.AccessForbiddenError(
       "Only admin can access this route"
     );
