@@ -43,13 +43,13 @@ const authControllers = {
     res.status(StatusCodes.OK).json({ user: tokenUser });
   }),
 
-  logout: asyncWrapper(async (req, res, next) => {
+  logout: (req, res, next) => {
     res.cookie("token", "logout", {
       httpOnly: true,
       expires: new Date(Date.now()),
     });
     res.status(StatusCodes.OK).send({ msg: "Logged-out" });
-  }),
+  },
 };
 
 export default authControllers;
