@@ -9,7 +9,11 @@ const userRouter = express.Router();
 
 userRouter
   .route("/")
-  .get(authenticateUser, authorizePermissions, userControllers.getAllUsers);
+  .get(
+    authenticateUser,
+    authorizePermissions("admin", "owner"),
+    userControllers.getAllUsers
+  );
 userRouter.route("/showMe").get(userControllers.showCurrentUser);
 userRouter.route("/updateUser").patch(userControllers.updateUser);
 userRouter
