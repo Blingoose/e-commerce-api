@@ -5,6 +5,7 @@ import { StatusCodes } from "http-status-codes";
 
 const userControllers = {
   getAllUsers: asyncWrapper(async (req, res, next) => {
+    console.log(req.user);
     // find the user but exclude password from the user data.
     const users = await User.find({ role: "user" }).select("-password");
     if (users.length === 0) {
