@@ -1,13 +1,12 @@
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
-import asyncWrapper from "./asyncWrapper.js";
 
-export const authenticateUser = asyncWrapper(async (req, res, next) => {
+export const authenticateUser = (req, res, next) => {
   const token = req.signedCookies.token;
 
   if (!token) {
-    throw new CustomErrors.UnauthorizedError("Authentication invalid");
+    throw new CustomErrors.UnauthorizedError("Authentication invalidddd");
   }
 
   try {
@@ -23,13 +22,13 @@ export const authenticateUser = asyncWrapper(async (req, res, next) => {
   } catch (error) {
     throw new CustomErrors.UnauthorizedError("Authentication invalid");
   }
-});
+};
 
-export const authorizePermissions = asyncWrapper(async (req, res, next) => {
-  if (req.user.role !== "admin") {
-    throw new CustomErrors.AccessForbiddenError(
-      "Only admin can access this route"
-    );
-  }
-  next();
-});
+export const authorizePermissions = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      throw new CustomErrors.AccessForbiddenError("Access forbidden");
+    }
+    next();
+  };
+};
