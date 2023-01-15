@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
 import asyncWrapper from "./asyncWrapper.js";
 
-const authenticateUser = asyncWrapper(async (req, res, next) => {
+export const authenticateUser = asyncWrapper(async (req, res, next) => {
   const token = req.signedCookies.token;
 
   if (!token) {
@@ -23,4 +23,12 @@ const authenticateUser = asyncWrapper(async (req, res, next) => {
   }
 });
 
-export default authenticateUser;
+export const authorizePermissions = asyncWrapper(async (req, res, next) => {
+  console.log("Authorize admin route");
+  if (req.user.role === "user") {
+    throw new CustomErrors.AccessForbiddenError(
+      "Only admin can access this route"
+    );
+  }
+  next();
+});
