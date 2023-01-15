@@ -6,7 +6,7 @@ export const authenticateUser = (req, res, next) => {
   const token = req.signedCookies.token;
 
   if (!token) {
-    throw new CustomErrors.UnauthorizedError("Authentication invalidddd");
+    throw new CustomErrors.UnauthorizedError("Authentication invalid");
   }
 
   try {
