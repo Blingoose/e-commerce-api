@@ -13,7 +13,7 @@ const authControllers = {
     const role = isFirstAccount ? "admin" : "user";
 
     const user = await User.create({ name, email, password, role });
-    const tokenUser = { name: user.name, userId: user._id, role: user.role };
+    const tokenUser = jwtHandler.createTokenUser(user);
 
     jwtHandler.attachCookiesToResponse({ res, user: tokenUser });
 
@@ -38,7 +38,7 @@ const authControllers = {
       throw new CustomErrors.UnauthorizedError("Invalid password");
     }
 
-    const tokenUser = { name: user.name, userId: user._id, role: user.role };
+    const tokenUser = jwtHandler.createTokenUser(user);
     jwtHandler.attachCookiesToResponse({ res, user: tokenUser });
     res.status(StatusCodes.OK).json({ user: tokenUser });
   }),
