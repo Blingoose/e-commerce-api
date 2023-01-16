@@ -39,13 +39,13 @@ const userControllers = {
       );
     }
     const user = await User.findById(req.user.userId);
-    const isOldPasswordMatch = user.comparePassword(oldPassword);
-    if (!isOldPasswordMatch) {
+    const isOldPasswordMatch = await user.comparePassword(oldPassword);
+    if (isOldPasswordMatch === false) {
       throw new CustomErrors.UnauthorizedError("old password is invalid");
     }
     user.password = newPassword;
-    user.save(user.password);
-    res.status(StatusCodes.CREATED).json({ user });
+    await user.save();
+    res.status(StatusCodes.CREATED).json({ msg: "Success! password updated" });
   }),
 };
 
