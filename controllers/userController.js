@@ -24,7 +24,7 @@ const userControllers = {
   }),
 
   showCurrentUser: asyncWrapper(async (req, res, next) => {
-    res.send("show current user route");
+    res.status(StatusCodes.OK).json({ user: req.user });
   }),
 
   updateUser: asyncWrapper(async (req, res, next) => {

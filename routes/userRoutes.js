@@ -14,7 +14,9 @@ userRouter
     authorizePermissions("admin", "owner"),
     userControllers.getAllUsers
   );
-userRouter.route("/showMe").get(userControllers.showCurrentUser);
+userRouter
+  .route("/showMe")
+  .get(authenticateUser, userControllers.showCurrentUser);
 userRouter.route("/updateUser").patch(userControllers.updateUser);
 userRouter
   .route("/updateUserPassword")
