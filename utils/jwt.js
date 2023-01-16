@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 
+//* functions related to jwt token
+
 const jwtHandler = {
   createJWT({ payload }) {
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
@@ -22,6 +24,10 @@ const jwtHandler = {
       secure: process.env.NODE_ENV === "production",
       signed: true,
     });
+  },
+
+  createTokenUser(user) {
+    return { name: user.name, userId: user._id, role: user.role };
   },
 };
 
