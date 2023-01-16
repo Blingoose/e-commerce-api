@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import asyncWrapper from "../middleware/asyncWrapper.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
+import jwtHandler from "../utils/jwt.js";
 
 const userControllers = {
   getAllUsers: asyncWrapper(async (req, res, next) => {
@@ -28,7 +29,18 @@ const userControllers = {
   }),
 
   updateUser: asyncWrapper(async (req, res, next) => {
-    res.send(req.body);
+    const { name, email } = req.body;
+    if (!name || !email) {
+      throw new CustomErrors.BadRequestError("Must provide name and email");
+    }
+    const user = await User.findOneAndUpdate(
+      { _id: req.user.userId },
+      { $set: { email, name } },
+      { new: true, runValidators: true }
+    );
+    const tokenUser = jwtHandler.createTokenUser(user);
+    jwtHandler.attachCookiesToResponse({ res, user: tokenUser });
+    res.status(StatusCodes.OK).json({ user: tokenUser });
   }),
 
   updateUserPassword: asyncWrapper(async (req, res, next) => {
@@ -45,7 +57,7 @@ const userControllers = {
     }
     user.password = newPassword;
     await user.save();
-    res.status(StatusCodes.CREATED).json({ msg: "Success! password updated" });
+    res.status(StatusCodes.OK).json({ msg: "Success! password updated" });
   }),
 };
 

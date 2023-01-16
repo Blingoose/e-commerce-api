@@ -19,7 +19,9 @@ userRouter
   .route("/showMe")
   .get(authenticateUser, userControllers.showCurrentUser);
 
-userRouter.route("/updateUser").patch(userControllers.updateUser);
+userRouter
+  .route("/updateUser")
+  .patch(authenticateUser, userControllers.updateUser);
 
 userRouter
   .route("/updateUserPassword")
