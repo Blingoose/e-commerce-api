@@ -14,13 +14,16 @@ userRouter
     authorizePermissions("admin", "owner"),
     userControllers.getAllUsers
   );
+
 userRouter
   .route("/showMe")
   .get(authenticateUser, userControllers.showCurrentUser);
+
 userRouter.route("/updateUser").patch(userControllers.updateUser);
+
 userRouter
   .route("/updateUserPassword")
-  .patch(userControllers.updateUserPassword);
+  .patch(authenticateUser, userControllers.updateUserPassword);
 
 // dynamic route, keep on bottom
 userRouter.route("/:id").get(authenticateUser, userControllers.getSingleUser);

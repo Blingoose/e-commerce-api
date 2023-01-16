@@ -32,7 +32,20 @@ const userControllers = {
   }),
 
   updateUserPassword: asyncWrapper(async (req, res, next) => {
-    res.send(req.body);
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) {
+      throw new CustomErrors.BadRequestError(
+        "You must provide old password and new password"
+      );
+    }
+    const user = await User.findById(req.user.userId);
+    const isOldPasswordMatch = user.comparePassword(oldPassword);
+    if (!isOldPasswordMatch) {
+      throw new CustomErrors.UnauthorizedError("old password is invalid");
+    }
+    user.password = newPassword;
+    user.save(user.password);
+    res.status(StatusCodes.CREATED).json({ user });
   }),
 };
 
