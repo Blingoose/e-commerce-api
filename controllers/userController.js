@@ -3,6 +3,7 @@ import asyncWrapper from "../middleware/asyncWrapper.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
+import checkPermission from "../utils/checkPermissions.js";
 
 const userControllers = {
   getAllUsers: asyncWrapper(async (req, res, next) => {
@@ -21,6 +22,7 @@ const userControllers = {
     if (!user) {
       throw new CustomErrors.NotFoundError(`No user with id: ${userId}`);
     }
+    checkPermission(req.user, userId);
     res.status(StatusCodes.OK).json({ user });
   }),
 
