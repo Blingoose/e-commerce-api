@@ -1,29 +1,32 @@
 import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcryptjs";
+import { validatorMinMax } from "../utils/utils.js";
 
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, "Please provide name"],
-    minlength: 3,
-    maxlength: 50,
+    required: [true, "Value must be provided"],
+    validate: [
+      validatorMinMax("minlength", 3),
+      validatorMinMax("maxlength", 50),
+    ],
   },
 
   email: {
     type: String,
     unique: true,
-    required: [true, "Please provide email"],
+    required: [true, "Value must be provided"],
     validate: {
       validator: validator.isEmail,
-      message: "Please provide valid email",
+      message: "Please provide a valid email",
     },
   },
 
   password: {
     type: String,
-    required: [true, "Please provide password"],
-    minlength: 6,
+    required: [true, "Value must be provided"],
+    validate: validatorMinMax("minlength", 6),
   },
 
   role: {
