@@ -1,9 +1,4 @@
 import { StatusCodes } from "http-status-codes";
-import {
-  replaceLastCommaWithAnd,
-  checkIfArrayHasMoreThanOne,
-  checkIfWordStartsWithVowel,
-} from "../utils/utils.js";
 
 const errorHandlerMiddleware = (err, req, res, next) => {
   let customError = {
@@ -18,19 +13,12 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 
   if (err.name === "ValidationError") {
     customError.statusCode = StatusCodes.BAD_REQUEST;
-    const fieldArr = Object.keys(err.errors);
-    if (checkIfArrayHasMoreThanOne(fieldArr)) {
-      const convertFieldToPlural = replaceLastCommaWithAnd(fieldArr);
-      customError.msg = `Validation failed. Please provide ${convertFieldToPlural} fields`;
-    } else {
-      // if only one field is missing
-      customError.msg = `Validation failed. Please provide ${
-        checkIfWordStartsWithVowel(fieldArr) ? "an" : "a"
-      } ${fieldArr} field`;
-    }
+    customError.msg = Object.keys(err.errors).map(
+      (error) => `${error}: ` + err.errors[error].message
+    );
   }
+
   res.status(customError.statusCode).json({ errMsg: customError.msg });
-  // res.status(customError.statusCode).json({ err });
 };
 
 export default errorHandlerMiddleware;
