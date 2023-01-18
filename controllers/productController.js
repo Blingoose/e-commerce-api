@@ -1,7 +1,7 @@
 import Product from "../models/product.js";
-import CustomErrors from "../errors/error-index.js";
-import { StatusCodes } from "http-status-codes";
 import asyncWrapper from "../middleware/asyncWrapper.js";
+import { StatusCodes } from "http-status-codes";
+import CustomErrors from "../errors/error-index.js";
 
 const productControllers = {
   createProduct: asyncWrapper(async (req, res, next) => {
@@ -49,7 +49,9 @@ const productControllers = {
     res.status(StatusCodes.OK).json({ product });
   }),
 
-  uploadImage: asyncWrapper(async (req, res, next) => {}),
+  uploadImage: asyncWrapper(async (req, res, next) => {
+    res.status(StatusCodes.OK).json({ msg: "upload image route" });
+  }),
 };
 
 export default productControllers;
