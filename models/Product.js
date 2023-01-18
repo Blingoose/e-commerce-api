@@ -6,19 +6,19 @@ const ProductSchema = new mongoose.Schema(
     name: {
       type: String,
       trim: true,
-      required: [true, "Please provide product name"],
+      required: [true, "Please provide a value"],
       validate: validatorMinMax("maxlength", 100),
     },
 
     price: {
       type: Number,
-      required: [true, "Please provide product price"],
+      required: [true, "Please provide a value"],
       default: 0,
     },
 
     description: {
       type: String,
-      required: [true, "Please provide product description"],
+      required: [true, "Please provide some info about the product"],
       validate: validatorMinMax("maxlength", 1000),
     },
 
@@ -29,13 +29,13 @@ const ProductSchema = new mongoose.Schema(
 
     category: {
       type: String,
-      required: [true, "Please provide product category"],
+      required: [true, "Please provide a value"],
       enum: ["office", "kitchen", "bedroom"],
     },
 
     company: {
       type: String,
-      required: [true, "Please provide company"],
+      required: [true, "Please provide a value"],
       enum: {
         values: ["ikea", "liddy", "marcos"],
         message: "{VALUE} is not supported",
