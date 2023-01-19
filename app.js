@@ -5,6 +5,7 @@ import errorHandlerMiddleware from "./middleware/error-handler-middleware.js";
 import notFoundRoute from "./middleware/not-found-middleware.js";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
+import reviewRouter from "./routes/reviewRoutes.js";
 import productRouter from "./routes/productRoutes.js";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
@@ -42,6 +43,7 @@ server.get("/api/v1", (req, res) => {
 server.use("/api/v1/auth", authRouter);
 server.use("/api/v1/users", userRouter);
 server.use("/api/v1/products", productRouter);
+server.use("/api/v1/reviews", reviewRouter);
 
 // error handler & not found middleware
 server.use(notFoundRoute);
