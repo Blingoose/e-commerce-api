@@ -8,9 +8,16 @@ import userRouter from "./routes/userRoutes.js";
 import productRouter from "./routes/productRoutes.js";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import fileUpload from "express-fileupload";
+import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 
 dotenv.config();
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET,
+});
 
 const server = express();
 
@@ -18,6 +25,8 @@ const server = express();
 server.use(morgan("tiny"));
 server.use(express.json());
 server.use(cookieParser(process.env.JWT_SECRET));
+server.use(express.static("./public"));
+server.use(fileUpload());
 
 server.get("/", (req, res) => {
   res.send("Test the main route --->  /api/v1/auth");
