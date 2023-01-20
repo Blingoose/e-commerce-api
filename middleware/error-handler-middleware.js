@@ -8,7 +8,15 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 
   if (err.code === 11000) {
     customError.statusCode = StatusCodes.BAD_REQUEST;
-    customError.msg = "Email already exist!";
+
+    if (
+      err.keyValue.hasOwnProperty("user") &&
+      err.keyValue.hasOwnProperty("product")
+    ) {
+      customError.msg = `You've already reviewd this product!`;
+    } else {
+      customError.msg = `${Object.keys(err.keyValue)} already exist!`;
+    }
   }
 
   if (err.name === "ValidationError") {
