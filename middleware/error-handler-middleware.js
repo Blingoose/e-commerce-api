@@ -6,17 +6,10 @@ const errorHandlerMiddleware = (err, req, res, next) => {
     msg: err.message || "Something went wrong, try again later.",
   };
 
+  //Duplicate error
   if (err.code === 11000) {
     customError.statusCode = StatusCodes.BAD_REQUEST;
-
-    if (
-      err.keyValue.hasOwnProperty("user") &&
-      err.keyValue.hasOwnProperty("product")
-    ) {
-      customError.msg = `You've already reviewed this product!`;
-    } else {
-      customError.msg = `${Object.keys(err.keyValue)} already exist!`;
-    }
+    customError.msg = `${Object.keys(err.keyValue)} already exist!`;
   }
 
   if (err.name === "ValidationError") {
