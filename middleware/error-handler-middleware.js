@@ -13,7 +13,7 @@ const errorHandlerMiddleware = (err, req, res, next) => {
       err.keyValue.hasOwnProperty("user") &&
       err.keyValue.hasOwnProperty("product")
     ) {
-      customError.msg = `You've already reviewd this product!`;
+      customError.msg = `You've already reviewed this product!`;
     } else {
       customError.msg = `${Object.keys(err.keyValue)} already exist!`;
     }
