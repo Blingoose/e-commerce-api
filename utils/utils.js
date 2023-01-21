@@ -31,3 +31,10 @@ export const ratingMinMax = (validationType, validationValue) => {
       } rating is ${validationValue}. You've entered ${value}`,
   };
 };
+
+// Virtual fields are fields that are not stored in the database, but are generated on the fly when queried.
+// They allow you to add additional fields to your documents that are calculated based on other fields,
+// or to return a different representation of an existing field.
+export const createVirtualField = (schema, fieldName, optionsObj) => {
+  return schema.virtual(fieldName, optionsObj);
+};
