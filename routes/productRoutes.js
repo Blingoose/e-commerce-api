@@ -1,5 +1,6 @@
 import express from "express";
 import productControllers from "../controllers/productController.js";
+import reviewControllers from "../controllers/reviewController.js";
 import {
   authenticateUser,
   authorizePermissions,
@@ -37,5 +38,9 @@ productRouter
     authorizePermissions("admin", "owner"),
     productControllers.deleteProduct
   );
+
+productRouter
+  .route("/:id/reviews")
+  .get(reviewControllers.getSingleProductReviews);
 
 export default productRouter;
