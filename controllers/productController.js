@@ -21,7 +21,7 @@ const productControllers = {
 
   getSingleProduct: asyncWrapper(async (req, res, next) => {
     const { id: productId } = req.params;
-    const product = await Product.findById(productId);
+    const product = await Product.findById(productId).populate("reviews");
 
     if (!product) {
       throw new CustomErrors.NotFoundError(
