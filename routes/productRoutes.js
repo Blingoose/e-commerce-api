@@ -39,6 +39,7 @@ productRouter
     productControllers.deleteProduct
   );
 
+//get all reviews of a specific product
 productRouter
   .route("/:id/reviews")
   .get(reviewControllers.getSingleProductReviews);

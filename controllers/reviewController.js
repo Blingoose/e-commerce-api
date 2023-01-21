@@ -102,6 +102,12 @@ const reviewControllers = {
     const { id: productId } = req.params;
     const reviews = await Review.find({ product: productId });
 
+    if (reviews.length === 0) {
+      throw new CustomErrors.NotFoundError(
+        "There are no reviews for this product"
+      );
+    }
+
     res.status(StatusCodes.OK).json({ reviews, count: reviews.length });
   }),
 };
