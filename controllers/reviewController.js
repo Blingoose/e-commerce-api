@@ -3,10 +3,11 @@ import Product from "../models/product.js";
 import asyncWrapper from "../middleware/asyncWrapper.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
+import checkPermission from "../utils/checkPermissions.js";
 
 const reviewControllers = {
   createReview: asyncWrapper(async (req, res, next) => {
-    const { userId } = req.user;
+    const { userId, name } = req.user;
     const { product: productId } = req.body;
 
     const isValidProduct = await Product.findById(productId);
@@ -15,7 +16,7 @@ const reviewControllers = {
       throw new CustomErrors.NotFoundError(`No product with id: ${productId}`);
     }
 
-    const alreadySubmitted = Review.findOne({
+    const alreadySubmitted = await Review.findOne({
       product: productId,
       user: userId,
     });
@@ -27,6 +28,8 @@ const reviewControllers = {
     }
 
     req.body.user = userId;
+    req.body.userName = name;
+
     const review = await Review.create(req.body);
 
     res.status(StatusCodes.CREATED).json({ review });
@@ -39,30 +42,55 @@ const reviewControllers = {
       throw new CustomErrors.NotFoundError("There are no reviews");
     }
 
-    res.status(StatusCodes.OK).json({ reviews });
+    res.status(StatusCodes.OK).json({ reviews, count: reviews.length });
   }),
 
   getSingleReview: asyncWrapper(async (req, res, next) => {
-    const { id: productId } = req.params;
-
-    if (!productId) {
-      throw new CustomErrors.BadRequestError(
-        `No product with id: ${productId}`
-      );
-    }
-
-    const review = await Review.findOne({ product: productId });
+    const { id: reviewId } = req.params;
+    const review = await Review.findById(reviewId);
 
     if (!review) {
-      throw new CustomErrors.NotFoundError("No reviews found for this product");
+      throw new CustomErrors.NotFoundError(`No review with id: ${reviewId}`);
     }
 
     res.status(StatusCodes.OK).json({ review });
   }),
 
-  deleteReview: asyncWrapper(async (req, res, next) => {}),
+  deleteReview: asyncWrapper(async (req, res, next) => {
+    const { id: reviewId } = req.params;
+    const review = await Review.findById(reviewId);
 
-  updateReview: asyncWrapper(async (req, res, next) => {}),
+    if (!review) {
+      throw new CustomErrors.NotFoundError(`No review with id: ${reviewId}`);
+    }
+
+    checkPermission(req.user, review.user.toString());
+
+    await review.remove();
+
+    res.status(StatusCodes.OK).json({ removed: review });
+  }),
+
+  updateReview: asyncWrapper(async (req, res, next) => {
+    const { id: reviewId } = req.params;
+    const { title, comment, rating } = req.body;
+
+    const review = await Review.findById(reviewId);
+
+    if (!review) {
+      throw new CustomErrors.NotFoundError(`No review with id: ${reviewId}`);
+    }
+
+    checkPermission(req.user, review.user.toString());
+
+    review.title = title;
+    review.comment = comment;
+    review.rating = rating;
+
+    await review.save();
+
+    res.status(StatusCodes.OK).json({ review });
+  }),
 };
 
 export default reviewControllers;
