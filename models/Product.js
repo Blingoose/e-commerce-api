@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { validatorMinMax } from "../utils/utils.js";
+import { createVirtualField, validatorMinMax } from "../utils/utils.js";
 
 const ProductSchema = new mongoose.Schema(
   {
@@ -75,8 +75,15 @@ const ProductSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestaps: true }
+  { timestaps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+//this enables the use of populate("reviews") in the getSingleProduct - to show all reviews for a single product.
+createVirtualField(ProductSchema, "reviews", {
+  ref: "Review",
+  localField: "_id",
+  foreignField: "product",
+});
 
 const Product = mongoose.model("Product", ProductSchema);
 export default Product;
