@@ -36,7 +36,8 @@ const reviewControllers = {
   }),
 
   getAllReviews: asyncWrapper(async (req, res, next) => {
-    const reviews = await Review.find({});
+    const reviews = await Review.find({})
+    .populate({ path: "product", select: "name company price" });
 
     if (reviews.length === 0) {
       throw new CustomErrors.NotFoundError("There are no reviews");
@@ -47,7 +48,10 @@ const reviewControllers = {
 
   getSingleReview: asyncWrapper(async (req, res, next) => {
     const { id: reviewId } = req.params;
-    const review = await Review.findById(reviewId);
+    const review = await Review.findById(reviewId).populate({
+      path: "product",
+      select: "name company price",
+    });
 
     if (!review) {
       throw new CustomErrors.NotFoundError(`No review with id: ${reviewId}`);
