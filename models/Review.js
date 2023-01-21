@@ -12,7 +12,7 @@ const ReviewSchema = mongoose.Schema(
     title: {
       type: String,
       trim: true,
-      required: [true, "Pleae provide value"],
+      required: [true, "Please provide value"],
       validate: validatorMinMax("maxlength", 80),
     },
 
@@ -27,6 +27,12 @@ const ReviewSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+
+    userName: {
+      type: String,
+      required: [true, "Please provide a name"],
+      trim: true,
     },
 
     product: {
