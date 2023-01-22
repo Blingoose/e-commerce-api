@@ -86,7 +86,7 @@ createVirtualField(ProductSchema, "reviews", {
 });
 
 // Before a product is removed, delete all associated reviews.
-ProductSchema.pre("remove", async function (next) {
+ProductSchema.pre("remove", async function () {
   await this.model("Review").deleteMany({ product: this._id });
 });
 
