@@ -89,9 +89,9 @@ const reviewControllers = {
 
     checkPermission(req.user, review.user.toString());
 
-    review.title = title;
-    review.comment = comment;
-    review.rating = rating;
+    review.title = title || review.title;
+    review.comment = comment || review.comment;
+    review.rating = rating || review.rating;
 
     await review.save();
 
