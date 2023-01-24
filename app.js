@@ -12,6 +12,7 @@ import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
+import orderRouter from "./routes/orderRoutes.js";
 
 dotenv.config();
 cloudinary.config({
@@ -44,6 +45,7 @@ server.use("/api/v1/auth", authRouter);
 server.use("/api/v1/users", userRouter);
 server.use("/api/v1/products", productRouter);
 server.use("/api/v1/reviews", reviewRouter);
+server.use("/api/v1/orders", orderRouter);
 
 // error handler & not found middleware
 server.use(notFoundRoute);
