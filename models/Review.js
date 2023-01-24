@@ -59,6 +59,12 @@ ReviewSchema.statics.calcAvgRatingAndNumOfReviews = async function (productId) {
         numOfReviews: { $sum: 1 },
       },
     },
+    {
+      $project: {
+        averageRating: { $round: ["$averageRating", 1] },
+        numOfReviews: 1,
+      },
+    },
   ]);
 
   try {
