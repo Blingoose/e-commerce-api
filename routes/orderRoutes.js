@@ -9,7 +9,11 @@ const orderRouter = express.Router();
 
 orderRouter
   .route("/")
-  .get(authenticateUser, authorizePermissions, orderControllers.getAllOrders)
+  .get(
+    authenticateUser,
+    authorizePermissions("admin", "owner"),
+    orderControllers.getAllOrders
+  )
   .post(authenticateUser, orderControllers.createOrder);
 
 orderRouter
