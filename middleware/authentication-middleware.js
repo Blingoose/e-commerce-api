@@ -1,5 +1,4 @@
 import CustomErrors from "../errors/error-index.js";
-import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
 
 export const authenticateUser = (req, res, next) => {
