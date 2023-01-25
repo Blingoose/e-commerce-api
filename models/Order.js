@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const SingleCartItemSchema = mongoose.Schema({
+const SingleOrderItemSchema = mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -17,7 +17,7 @@ const SingleCartItemSchema = mongoose.Schema({
   },
 
   name: {
-    type: Number,
+    type: String,
     required: true,
   },
 
@@ -40,7 +40,7 @@ const OrderSchema = mongoose.Schema(
       required: true,
     },
 
-    // cart items * price
+    // amount * price
     subtotal: {
       type: Number,
       required: true,
@@ -52,7 +52,7 @@ const OrderSchema = mongoose.Schema(
       required: true,
     },
 
-    cartItems: [SingleCartItemSchema],
+    orderItems: [SingleOrderItemSchema],
 
     status: {
       type: String,
