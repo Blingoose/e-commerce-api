@@ -31,14 +31,9 @@ const orderControllers = {
       throw new CustomErrors.BadRequestError("No cart items provided");
     }
 
-    if (!tax || !shippingFee) {
-      throw new CustomErrors.BadRequestError(
-        "Please provide tax and shippingFee values"
-      );
-    }
-
     let orderItems = [];
     let subtotal = 0;
+    let total = 0;
 
     for (const item of cartItems) {
       const product = await Product.findById(item.product);
@@ -62,7 +57,12 @@ const orderControllers = {
       orderItems = [...orderItems, singleOrderItem];
       subtotal += item.amount * price;
     }
-    const total = tax + shippingFee + subtotal;
+
+    total = tax + shippingFee + subtotal;
+    if (!total) {
+      // if one of the required fields is missing or can't be summed up
+      total = 0;
+    }
 
     //get client secret
     const paymentIntent = await fakeStripeAPI({
