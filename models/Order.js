@@ -32,12 +32,12 @@ const OrderSchema = mongoose.Schema(
   {
     tax: {
       type: Number,
-      required: true,
+      required: [true, "Please provide value"],
     },
 
     shippingFee: {
       type: Number,
-      required: true,
+      required: [true, "Please provide value"],
     },
 
     // amount * price
