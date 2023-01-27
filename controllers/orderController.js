@@ -111,7 +111,13 @@ const orderControllers = {
   }),
 
   getCurrentUserOrders: asyncWrapper(async (req, res, next) => {
-    res.send("getCurrentUserOrders controller");
+    const order = await Order.find({ user: req.user.userId });
+
+    if (!order) {
+      throw new CustomErrors.NotFoundError("No orders");
+    }
+
+    res.status(StatusCodes.OK).json({ order, count: order.length });
   }),
 
   updateOrder: asyncWrapper(async (req, res, next) => {
