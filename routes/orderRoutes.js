@@ -22,11 +22,7 @@ orderRouter
 
 orderRouter
   .route("/:id")
-  .get(
-    authenticateUser,
-    authorizePermissions("admin", "owner"),
-    orderControllers.getSingleOrder
-  )
+  .get(authenticateUser, orderControllers.getSingleOrder)
   .patch(authenticateUser, orderControllers.updateOrder);
 
 export default orderRouter;
