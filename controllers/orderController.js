@@ -90,11 +90,24 @@ const orderControllers = {
   }),
 
   getAllOrders: asyncWrapper(async (req, res, next) => {
-    res.send("getAllOrders controller");
+    const orders = await Order.find({});
+
+    if (orders.length === 0) {
+      throw new CustomErrors.NotFoundError("There are no orders right now");
+    }
+    res.status(StatusCodes.OK).json({ orders });
   }),
 
   getSingleOrder: asyncWrapper(async (req, res, next) => {
-    res.send("getSingleOrder controller");
+    const { id: orderId } = req.params;
+    checkPersmissions(req.user, orderId);
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      throw new CustomErrors(`No order with id: ${orderId}`);
+    }
+
+    res.status(StatusCodes.OK).json({ order });
   }),
 
   getCurrentUserOrders: asyncWrapper(async (req, res, next) => {
