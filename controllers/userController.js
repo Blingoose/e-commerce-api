@@ -18,11 +18,13 @@ const userControllers = {
 
   getSingleUser: asyncWrapper(async (req, res, next) => {
     const { id: userId } = req.params;
+
+    checkPermission(req.user, userId);
+
     const user = await User.findById(userId).select("-password");
     if (!user) {
       throw new CustomErrors.NotFoundError(`No user with id: ${userId}`);
     }
-    checkPermission(req.user, userId);
     res.status(StatusCodes.OK).json({ user });
   }),
 
