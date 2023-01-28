@@ -3,7 +3,9 @@ const checkPermission = (requestUser, resourceUserId) => {
   //   console.log(requestUser.userId);
   //   console.log(resourceUserId);
   if (requestUser.role !== "admin" && requestUser.userId !== resourceUserId) {
-    throw new CustomErrors.AccessForbiddenError("Unauthorized request");
+    throw new CustomErrors.NotFoundError(
+      `No item found with id: ${resourceUserId}`
+    );
   }
 };
 
