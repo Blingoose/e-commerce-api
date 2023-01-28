@@ -40,7 +40,7 @@ const orderControllers = {
 
       if (!product) {
         throw new CustomErrors.NotFoundError(
-          `No product with id: ${item.product}`
+          `No item found with id: ${item.product}`
         );
       }
       const { name, price, image, _id } = product;
@@ -95,17 +95,18 @@ const orderControllers = {
     if (orders.length === 0) {
       throw new CustomErrors.NotFoundError("There are no orders right now");
     }
-    res.status(StatusCodes.OK).json({ orders });
+    res.status(StatusCodes.OK).json({ orders, count: orders.length });
   }),
 
   getSingleOrder: asyncWrapper(async (req, res, next) => {
     const { id: orderId } = req.params;
-    checkPersmissions(req.user, orderId);
 
     const order = await Order.findById(orderId);
     if (!order) {
-      throw new CustomErrors(`No order with id: ${orderId}`);
+      throw new CustomErrors.NotFoundError(`No item found with id: ${orderId}`);
     }
+
+    checkPersmissions(req.user, order.user.toString());
 
     res.status(StatusCodes.OK).json({ order });
   }),
@@ -113,7 +114,7 @@ const orderControllers = {
   getCurrentUserOrders: asyncWrapper(async (req, res, next) => {
     const order = await Order.find({ user: req.user.userId });
 
-    if (!order) {
+    if (order.length === 0) {
       throw new CustomErrors.NotFoundError("No orders");
     }
 
@@ -121,6 +122,8 @@ const orderControllers = {
   }),
 
   updateOrder: asyncWrapper(async (req, res, next) => {
+    const { id: orderId } = req.params;
+
     res.send("updateOrder controller");
   }),
 };
