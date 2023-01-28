@@ -3,7 +3,6 @@ import User from "../models/user.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
-import joi from "joi";
 
 const authControllers = {
   register: asyncWrapper(async (req, res, next) => {
