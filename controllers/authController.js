@@ -3,6 +3,7 @@ import User from "../models/user.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
+import joi from "joi";
 
 const authControllers = {
   register: asyncWrapper(async (req, res, next) => {
@@ -22,13 +23,15 @@ const authControllers = {
 
   login: asyncWrapper(async (req, res, next) => {
     const { email, password } = req.body;
-    if (!email || !password) {
-      throw new CustomErrors.BadRequestError(
-        "Please provide password and email"
-      );
+    if (!password) {
+      throw new CustomErrors.UnauthorizedError("Must provide password");
     }
+    const validateFields = new User({ email, password });
+    await validateFields.validate({ pathsToSkip: ["name", "password"] });
 
     const user = await User.findOne({ email });
+    console.log(user);
+
     if (!user) {
       throw new CustomErrors.UnauthorizedError(`User ${email} doesn't exist`);
     }
