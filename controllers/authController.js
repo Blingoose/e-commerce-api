@@ -22,11 +22,12 @@ const authControllers = {
 
   login: asyncWrapper(async (req, res, next) => {
     const { email, password } = req.body;
+    const validateFields = new User({ email, password });
+    await validateFields.validate({ pathsToSkip: ["name", "password"] });
+
     if (!password) {
       throw new CustomErrors.UnauthorizedError("Must provide password");
     }
-    const validateFields = new User({ email, password });
-    await validateFields.validate({ pathsToSkip: ["name", "password"] });
 
     const user = await User.findOne({ email });
     console.log(user);
