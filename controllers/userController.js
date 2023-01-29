@@ -56,7 +56,7 @@ const userControllers = {
 
     if (!oldPassword || !newPassword) {
       throw new CustomErrors.BadRequestError(
-        "You must provide old password and new password"
+        `You must provide both old password and new password. Example: "oldPassword":"123456", "newPassword":"0123456789"`
       );
     }
 
