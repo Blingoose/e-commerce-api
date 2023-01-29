@@ -2,7 +2,7 @@ import Order from "../models/order.js";
 import Product from "../models/product.js";
 import CustomErrors from "../errors/error-index.js";
 import asyncWrapper from "../middleware/asyncWrapper.js";
-import checkPersmissions from "../utils/checkPermissions.js";
+import checkPermission from "../utils/checkPermissions.js";
 import { v4 } from "uuid";
 import { StatusCodes } from "http-status-codes";
 
@@ -108,25 +108,34 @@ const orderControllers = {
       );
     }
 
-    checkPersmissions(req.user, order.user.toString());
+    checkPermission(req.user, order.user.toString(), orderId);
 
     res.status(StatusCodes.OK).json({ order });
   }),
 
   getCurrentUserOrders: asyncWrapper(async (req, res, next) => {
-    const order = await Order.find({ user: req.user.userId });
+    const orders = await Order.find({ user: req.user.userId });
 
-    if (order.length === 0) {
+    if (orders.length === 0) {
       throw new CustomErrors.NotFoundError("No orders");
     }
 
-    res.status(StatusCodes.OK).json({ order, count: order.length });
+    res.status(StatusCodes.OK).json({ orders, count: orders.length });
   }),
 
   updateOrder: asyncWrapper(async (req, res, next) => {
     const { id: orderId } = req.params;
+    const { paymentIntentId } = req.body;
 
-    res.send("updateOrder controller");
+    const order = await Order.findById(orderId);
+    checkPermission(req.user, order.user.toString(), orderId);
+
+    order.paymentIntentId = paymentIntentId;
+    order.status = "paid";
+
+    await order.save();
+
+    res.status(StatusCodes.OK).json({ order });
   }),
 };
 
