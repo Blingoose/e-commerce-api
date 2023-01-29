@@ -70,7 +70,7 @@ const reviewControllers = {
       throw new CustomErrors.NotFoundError(`No review with id: ${reviewId}`);
     }
 
-    checkPermission(req.user, review.user.toString());
+    checkPermission(req.user, review.user.toString(), reviewId);
 
     await review.remove();
 
@@ -87,7 +87,7 @@ const reviewControllers = {
       throw new CustomErrors.NotFoundError(`No review with id: ${reviewId}`);
     }
 
-    checkPermission(req.user, review.user.toString());
+    checkPermission(req.user, review.user.toString(), reviewId);
 
     review.title = title || review.title;
     review.comment = comment || review.comment;
