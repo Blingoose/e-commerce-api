@@ -40,7 +40,7 @@ const orderControllers = {
 
       if (!product) {
         throw new CustomErrors.NotFoundError(
-          `No item found with id: ${item.product}`
+          `No product found with id: ${item.product}`
         );
       }
       const { name, price, image, _id } = product;
@@ -103,7 +103,9 @@ const orderControllers = {
 
     const order = await Order.findById(orderId);
     if (!order) {
-      throw new CustomErrors.NotFoundError(`No item found with id: ${orderId}`);
+      throw new CustomErrors.NotFoundError(
+        `No order found with id: ${orderId}`
+      );
     }
 
     checkPersmissions(req.user, order.user.toString());

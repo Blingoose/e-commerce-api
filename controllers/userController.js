@@ -23,7 +23,7 @@ const userControllers = {
 
     const user = await User.findById(userId).select("-password");
     if (!user) {
-      throw new CustomErrors.NotFoundError(`No user with id: ${userId}`);
+      throw new CustomErrors.NotFoundError(`No item found with id: ${user}`);
     }
     res.status(StatusCodes.OK).json({ user });
   }),
