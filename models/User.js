@@ -34,6 +34,36 @@ const UserSchema = new mongoose.Schema({
     enum: ["admin", "user"],
     default: "user",
   },
+
+  followers: [
+    {
+      type: String,
+    },
+  ],
+
+  following: [
+    {
+      type: String,
+    },
+  ],
+
+  countFollowers: {
+    type: Number,
+    default: 0,
+  },
+
+  countFollowing: {
+    type: Number,
+    default: 0,
+  },
+
+  hashedId: {
+    type: String,
+  },
+
+  encodedHashedId: {
+    type: String,
+  },
 });
 
 UserSchema.pre("save", async function () {
@@ -42,10 +72,21 @@ UserSchema.pre("save", async function () {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
   }
+
+  if (!this.hashedId && this.isNew) {
+    const salt = await bcrypt.genSalt(10);
+    this.hashedId = await bcrypt.hash(this._id.toString(), salt);
+    this.encodedHashedId = encodeURIComponent(this.hashedId);
+  }
 });
 
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   const isMatch = await bcrypt.compare(candidatePassword, this.password);
+  return isMatch;
+};
+
+UserSchema.methods.compareHashedId = async function (candidateId) {
+  const isMatch = await bcrypt.compare(candidateId, this.hashedId);
   return isMatch;
 };
 
