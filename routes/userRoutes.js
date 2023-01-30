@@ -30,4 +30,12 @@ userRouter
 // dynamic route, keep on bottom
 userRouter.route("/:id").get(authenticateUser, userControllers.getSingleUser);
 
+userRouter
+  .route("/:id/follow")
+  .post(authenticateUser, userControllers.followUser);
+
+userRouter
+  .route("/:id/unfollow")
+  .post(authenticateUser, userControllers.unfollowUser);
+
 export default userRouter;
