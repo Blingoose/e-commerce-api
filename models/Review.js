@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { ratingMinMax, validatorMinMax } from "../utils/utils.js";
 
-const ReviewSchema = mongoose.Schema(
+const ReviewSchema = new mongoose.Schema(
   {
     rating: {
       type: Number,
