@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const SingleOrderItemSchema = mongoose.Schema({
+const SingleOrderItemSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
