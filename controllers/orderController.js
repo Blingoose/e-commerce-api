@@ -128,6 +128,11 @@ const orderControllers = {
     const { paymentIntentId } = req.body;
 
     const order = await Order.findById(orderId);
+    if (!order) {
+      throw new CustomErrors.NotFoundError(
+        `No order found with id: ${orderId}`
+      );
+    }
     checkPermission(req.user, order.user.toString(), orderId);
 
     order.paymentIntentId = paymentIntentId;
