@@ -95,7 +95,7 @@ const userControllers = {
 
     const existingFollow = await User.findOne({
       _id: req.user.userId,
-      following: { $ne: [userToFollowId] },
+      following: { $in: [userToFollowId] },
     });
 
     if (existingFollow) {
@@ -145,11 +145,12 @@ const userControllers = {
     }
 
     const existingFollow = await User.findOne({
-      following: { $eq: [userToUnfollowId] },
+      _id: req.user.userId,
+      following: { $in: [userToUnfollowId] },
     });
 
-    if (existingFollow) {
-      throw new CustomErrors.BadRequestError("You're not following this user");
+    if (!existingFollow) {
+      throw new CustomErrors.BadRequestError("You are not following this user");
     }
 
     const bulkWrite = [
@@ -165,7 +166,7 @@ const userControllers = {
 
       {
         updateOne: {
-          filter: { _id: req.user.id },
+          filter: { _id: req.user.userId },
           update: {
             $pull: { following: userToUnfollowId },
             $inc: { countFollowing: -1 },
