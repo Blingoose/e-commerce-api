@@ -21,13 +21,13 @@ const userControllers = {
     const { role, userId: currentUserId } = req.user;
 
     let user;
+
     if (role !== "admin" && currentUserId !== userId) {
       user = await User.findById(userId).select("-password -_id -email -__v");
-    } else if (role !== "admin" && currentUserId === userId) {
-      user = await User.findById(userId).select("-password");
     } else {
       user = await User.findById(userId).select("-password");
     }
+    // checkPermission(req.user, userId);
 
     if (!user) {
       throw new CustomErrors.NotFoundError(`No item found with id: ${user}`);
@@ -84,74 +84,97 @@ const userControllers = {
   }),
 
   followUser: asyncWrapper(async (req, res, next) => {
-    const { id: encodedHashedId } = req.params;
+    const { id: userToFollowId } = req.params;
 
-    const userToFollow = await User.findOne({
-      hashedId: encodedHashedId,
-    });
-
+    const userToFollow = await User.findById(userToFollowId);
     if (!userToFollow) {
       throw new CustomErrors.NotFoundError(
-        `No item found with id: ${encodedHashedId}`
+        `No item found with id: ${userToFollowId}`
       );
     }
 
-    const isHashedIdMatch = await userToFollow.compareHashedId(
-      userToFollow._id.toString()
-    );
-
-    if (isHashedIdMatch === false) {
-      throw new CustomErrors.UnauthorizedError("Couldn't verify credentials");
-    }
-
-    const currentUser = await User.findOne({
+    const existingFollow = await User.findOne({
       _id: req.user.userId,
+      following: { $ne: [userToFollowId] },
     });
 
-    if (currentUser.hashedId === encodedHashedId) {
-      throw new CustomErrors.BadRequestError("You cannot follow yourself!");
-    }
-
-    if (currentUser.following.includes(userToFollow.encodedHashedId)) {
+    if (existingFollow) {
       throw new CustomErrors.BadRequestError("You already following this user");
     }
 
-    userToFollow.followers.push(req.user.encodedHashedId);
-    currentUser.following.push(userToFollow.encodedHashedId);
+    if (req.user.userId === userToFollowId) {
+      throw new CustomErrors.BadRequestError("You cannot follow yourself");
+    }
 
-    userToFollow.countFollowers = userToFollow.followers.length;
-    currentUser.countFollowing = currentUser.following.length;
+    const bulkWrite = [
+      {
+        updateOne: {
+          filter: { _id: userToFollowId },
+          update: {
+            $addToSet: { followers: req.user.userId },
+            $inc: { countFollowers: 1 },
+          },
+        },
+      },
+      {
+        updateOne: {
+          filter: { _id: req.user.userId },
+          update: {
+            $addToSet: { following: userToFollowId },
+            $inc: { countFollowing: 1 },
+          },
+        },
+      },
+    ];
 
-    await userToFollow.save();
-    await currentUser.save();
+    await User.bulkWrite(bulkWrite);
 
-    res.status(StatusCodes.OK).json({ msg: `Started following ` });
+    res
+      .status(StatusCodes.OK)
+      .json({ msg: `Started following ${userToFollow.name}` });
   }),
 
   unfollowUser: asyncWrapper(async (req, res, next) => {
-    const { id: hashedId } = req.params;
+    const { id: userToUnfollowId } = req.params;
 
-    const userToUnfollow = await User.findById(hashedId);
+    const userToUnfollow = await User.findById(userToUnfollowId);
     if (!userToUnfollow) {
       throw new CustomErrors.NotFoundError(
-        `No item found with id: ${hashedId}`
+        `No item found with id: ${userToUnfollowId}`
       );
     }
 
-    const currentUser = await User.findOne({ following: hashedId });
+    const existingFollow = await User.findOne({
+      following: { $eq: [userToUnfollowId] },
+    });
 
-    if (!currentUser) {
+    if (existingFollow) {
       throw new CustomErrors.BadRequestError("You're not following this user");
     }
 
-    await userToUnfollow.followers.pull(req.user.userId);
-    await currentUser.following.pull(hashedId);
+    const bulkWrite = [
+      {
+        updateOne: {
+          filter: { _id: userToUnfollowId },
+          update: {
+            $pull: { followers: req.user.userId },
+            $inc: { countFollowers: -1 },
+          },
+        },
+      },
 
-    userToUnfollow.countFollowers = userToUnfollow.followers.length;
-    currentUser.countFollowing = currentUser.following.length;
+      {
+        updateOne: {
+          filter: { _id: req.user.id },
+          update: {
+            $pull: { following: userToUnfollowId },
+            $inc: { countFollowing: -1 },
+          },
+        },
+      },
+    ];
 
-    await userToUnfollow.save();
-    await currentUser.save();
+    await User.bulkWrite(bulkWrite);
 
     res
       .status(StatusCodes.OK)
