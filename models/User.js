@@ -71,6 +71,19 @@ UserSchema.methods.comparePassword = async function (candidatePassword) {
   return isMatch;
 };
 
+UserSchema.pre("remove", async function () {
+  //Remove all reviews that are associated with that user to be deleted.
+  await this.model("Review").deleteMany({ product: this._id });
+  // Remove the deleted user's id from other users' followers array
+  await User.updateMany(
+    { followers: this._id },
+    {
+      $pull: { followers: this._id.toString() },
+      $inc: { countFollowers: -1 },
+    }
+  );
+});
+
 const User = mongoose.model("User", UserSchema);
 
 export default User;
