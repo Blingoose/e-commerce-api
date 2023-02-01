@@ -3,13 +3,19 @@ import asyncWrapper from "../middleware/asyncWrapper.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
-import checkPermission from "../utils/checkPermissions.js";
+import { excludeFields } from "../utils/utils.js";
 
 const userControllers = {
   getAllUsers: asyncWrapper(async (req, res, next) => {
-    console.log(req.user);
-    // find the user but exclude password from the user data.
-    const users = await User.find({ role: "user" }).select("-password");
+    const { role } = req.user;
+    const exclude = excludeFields(role);
+
+    //find all users who has role of "user", except for the current user.
+    const users = await User.find({
+      role: "user",
+      _id: { $nin: req.user.userId },
+    }).select(exclude);
+
     if (users.length === 0) {
       throw new CustomErrors.NotFoundError("No users in database");
     }
@@ -19,15 +25,8 @@ const userControllers = {
   getSingleUser: asyncWrapper(async (req, res, next) => {
     const { id: userId } = req.params;
     const { role, userId: currentUserId } = req.user;
-
-    let user;
-
-    if (role !== "admin" && currentUserId !== userId) {
-      user = await User.findById(userId).select("-password -_id -email -__v");
-    } else {
-      user = await User.findById(userId).select("-password");
-    }
-    // checkPermission(req.user, userId);
+    const exclude = excludeFields(role, currentUserId, userId);
+    const user = await User.findById(userId).select(exclude);
 
     if (!user) {
       throw new CustomErrors.NotFoundError(`No item found with id: ${user}`);
@@ -36,9 +35,9 @@ const userControllers = {
   }),
 
   showCurrentUser: asyncWrapper(async (req, res, next) => {
-    const currentUser = await User.findById(req.user.userId).select(
-      "-password -__v"
-    );
+    const exclude = excludeFields("admin");
+    const currentUser = await User.findById(req.user.userId).select(exclude);
+
     res.status(StatusCodes.OK).json({ user: currentUser });
   }),
 
@@ -81,6 +80,10 @@ const userControllers = {
     await user.save();
 
     res.status(StatusCodes.OK).json({ msg: "Success! password updated" });
+  }),
+
+  deleteUser: asyncWrapper(async (req, res, next) => {
+    const { id: userId } = req.params;
   }),
 
   followUser: asyncWrapper(async (req, res, next) => {
