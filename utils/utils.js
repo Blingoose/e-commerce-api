@@ -38,3 +38,15 @@ export const ratingMinMax = (validationType, validationValue) => {
 export const createVirtualField = (schema, fieldName, ...options) => {
   return schema.virtual(fieldName, ...options);
 };
+
+export const excludeFields = (
+  role = "user",
+  currentUserId = null,
+  userId = null
+) => {
+  let exclude = "-password -email -__v";
+  if (role === "admin" || (currentUserId && currentUserId === userId)) {
+    exclude = "-password -__v";
+  }
+  return exclude;
+};
