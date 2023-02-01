@@ -1,19 +1,10 @@
 import userControllers from "../controllers/userController.js";
 import express from "express";
-import {
-  authenticateUser,
-  authorizePermissions,
-} from "../middleware/authentication-middleware.js";
+import { authenticateUser } from "../middleware/authentication-middleware.js";
 
 const userRouter = express.Router();
 
-userRouter
-  .route("/")
-  .get(
-    authenticateUser,
-    authorizePermissions("admin", "owner"),
-    userControllers.getAllUsers
-  );
+userRouter.route("/").get(authenticateUser, userControllers.getAllUsers);
 
 userRouter
   .route("/showMe")
