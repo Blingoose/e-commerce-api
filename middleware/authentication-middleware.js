@@ -15,6 +15,7 @@ export const authenticateUser = (req, res, next) => {
       userId: payload.userId,
       name: payload.name,
       role: payload.role,
+      username: payload.username,
       expiration: new Date(payload.exp * 1000).toLocaleString(),
     };
     next();
