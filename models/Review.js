@@ -29,7 +29,7 @@ const ReviewSchema = new mongoose.Schema(
       required: true,
     },
 
-    userName: {
+    username: {
       type: String,
       required: [true, "Please provide a name"],
       trim: true,
