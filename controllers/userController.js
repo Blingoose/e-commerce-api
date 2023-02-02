@@ -49,6 +49,28 @@ const userControllers = {
     res.status(StatusCodes.OK).json({ user: currentUser });
   }),
 
+  updateUser: asyncWrapper(async (req, res, next) => {
+    const { name, email, username } = req.body;
+
+    if (Object.keys(req.body).length < 1) {
+      throw new CustomErrors.BadRequestError(
+        "Must provide at least one field [name, username, email] to update"
+      );
+    }
+    const user = await User.findOne({ username: req.user.username });
+
+    user.email = email || user.email;
+    user.name = name || user.name;
+    user.username = username || user.username;
+
+    await user.save();
+
+    const tokenUser = jwtHandler.createTokenUser(user);
+    jwtHandler.attachCookiesToResponse({ res, user: tokenUser });
+
+    res.status(StatusCodes.OK).json({ user: tokenUser });
+  }),
+
   updateUserPassword: asyncWrapper(async (req, res, next) => {
     const { oldPassword, newPassword } = req.body;
 
