@@ -7,13 +7,13 @@ import validator from "validator";
 
 const authControllers = {
   register: asyncWrapper(async (req, res, next) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, username } = req.body;
 
     //the first created account will be an admin
     const isFirstAccount = (await User.countDocuments({})) === 0;
     const role = isFirstAccount ? "admin" : "user";
 
-    const user = await User.create({ name, email, password, role });
+    const user = await User.create({ name, username, email, password, role });
     const tokenUser = jwtHandler.createTokenUser(user);
 
     jwtHandler.attachCookiesToResponse({ res, user: tokenUser });
