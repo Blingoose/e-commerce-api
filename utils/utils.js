@@ -41,11 +41,11 @@ export const createVirtualField = (schema, fieldName, ...options) => {
 
 export const excludeFields = (
   role = "user",
-  currentUserId = null,
-  userId = null
+  currentUsername = null,
+  username = null
 ) => {
   let exclude = "-password -email -__v";
-  if (role === "admin" || (currentUserId && currentUserId === userId)) {
+  if (role === "admin" || (currentUsername && currentUsername === username)) {
     exclude = "-password -__v";
   }
   return exclude;
