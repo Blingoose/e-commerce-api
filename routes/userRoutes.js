@@ -1,6 +1,9 @@
 import userControllers from "../controllers/userController.js";
 import express from "express";
-import { authenticateUser } from "../middleware/authentication-middleware.js";
+import {
+  authenticateUser,
+  authorizePermissions,
+} from "../middleware/authentication-middleware.js";
 
 const userRouter = express.Router();
 
@@ -19,7 +22,10 @@ userRouter
   .patch(authenticateUser, userControllers.updateUserPassword);
 
 // dynamic route, keep on bottom
-userRouter.route("/:id").get(authenticateUser, userControllers.getSingleUser);
+userRouter
+  .route("/:id")
+  .get(authenticateUser, userControllers.getSingleUser)
+  .delete(authenticateUser, userControllers.deleteUser);
 
 userRouter
   .route("/:id/follow")
