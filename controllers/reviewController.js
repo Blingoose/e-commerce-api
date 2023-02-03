@@ -7,7 +7,7 @@ import checkPermission from "../utils/checkPermissions.js";
 
 const reviewControllers = {
   createReview: asyncWrapper(async (req, res, next) => {
-    const { userId, name } = req.user;
+    const { userId, username } = req.user;
     const { product: productId } = req.body;
 
     const isValidProduct = await Product.findById(productId);
@@ -28,7 +28,7 @@ const reviewControllers = {
     }
 
     req.body.user = userId;
-    req.body.userName = name;
+    req.body.username = username;
 
     const review = await Review.create(req.body);
 
