@@ -26,6 +26,11 @@ const SingleOrderItemSchema = new mongoose.Schema({
     ref: "Product",
     required: true,
   },
+
+  amount: {
+    type: Number,
+    required: true,
+  },
 });
 
 const OrderSchema = mongoose.Schema(
