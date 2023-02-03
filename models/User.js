@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcryptjs";
 import { validatorMinMax } from "../utils/utils.js";
+import CustomErrors from "../errors/error-index.js";
+import { StatusCodes } from "http-status-codes";
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -64,15 +66,20 @@ const UserSchema = new mongoose.Schema({
   ],
 
   countFollowers: {
-    type: Number,
+    type: String,
     default: 0,
   },
 
   countFollowing: {
-    type: Number,
+    type: String,
     default: 0,
   },
 });
+
+UserSchema.methods.comparePassword = async function (candidatePassword) {
+  const isMatch = await bcrypt.compare(candidatePassword, this.password);
+  return isMatch;
+};
 
 UserSchema.pre("save", async function () {
   if (this.isModified("password")) {
@@ -87,73 +94,84 @@ UserSchema.pre("save", async function () {
     // Update followers array
     await User.updateMany(
       { followers: previousUsername },
-      { $set: { followers: this.username } }
+      { $set: { "followers.$": this.username } }
     );
 
     // Update following array
     await User.updateMany(
       { following: previousUsername },
-      { $set: { following: this.username } }
+      { $set: { "following.$": this.username } }
+    );
+
+    //When user changes his username, update all associated reviews posted by him, with that new username
+    await this.model("Review").updateMany(
+      { username: previousUsername },
+      { $set: { username: this.username } }
     );
   }
-
-  //TODO -------------------> When a user changes his username, update all associated reviews posted by him, with that new username <---------------------- TODO
 });
-
-UserSchema.methods.comparePassword = async function (candidatePassword) {
-  const isMatch = await bcrypt.compare(candidatePassword, this.password);
-  return isMatch;
-};
 
 UserSchema.pre("remove", async function () {
   //Remove all reviews that are associated with that user to be deleted.
   await this.model("Review").deleteMany({ product: this._id });
 
-  // Remove the deleted username from all associated followers & following users.
-  // Update the countFollowers & countFollowing for all users who were associated with the deleted username.
-  const update = {
-    $pull: {
-      followers: this.username,
-      following: this.username,
-    },
-  };
+  // Remove the deleted username from all associated followers & following users &&
+  // update the countFollowers & countFollowing for all users who were associated with the deleted username.
+  const deletedUsername = this.username;
 
-  const followersSize = await User.aggregate([
-    { $match: { followers: this.username } },
-    { $project: { size: { $size: "$followers" } } },
-  ]);
-
-  const followingSize = await User.aggregate([
-    { $match: { following: this.username } },
-    { $project: { size: { $size: "$following" } } },
-  ]);
-
-  if (followersSize.length > 0) {
-    update.$inc = {
-      countFollowers: -followersSize[0].size,
-    };
-  }
-
-  if (followingSize.length > 0) {
-    update.$inc = {
-      ...update.$inc,
-      countFollowing: -followingSize[0].size,
-    };
-  }
-
-  await User.updateMany(
+  const operations = [
     {
-      $or: [
-        {
-          followers: this.username,
+      updateMany: {
+        filter: { followers: deletedUsername },
+        update: {
+          $pull: { followers: deletedUsername },
+          $inc: { countFollowers: -1 },
         },
-        {
-          following: this.username,
-        },
-      ],
+      },
     },
-    update
-  );
+    {
+      updateMany: {
+        filter: { following: deletedUsername },
+        update: {
+          $pull: { following: deletedUsername },
+          $inc: { countFollowing: -1 },
+        },
+      },
+    },
+  ];
+
+  // If some of the bulk writes fail, it'll be retried 5 times.
+
+  let success = false;
+  let retries = 0;
+  const maxRetries = 5;
+  const retryInterval = 500;
+
+  while (!success && retries < maxRetries) {
+    try {
+      await User.collection.bulkWrite(operations, {
+        ordered: true,
+        forceServerObjectId: false,
+      });
+      success = true;
+    } catch (error) {
+      retries += 1;
+
+      console.error(
+        `Write failed, retrying in ${retryInterval}ms (${retries}/${maxRetries})`
+      );
+
+      //retry again ONLY after the timeout has ended.
+      await new Promise((resolve) => setTimeout(resolve, retryInterval));
+    }
+  }
+
+  if (!success) {
+    throw new CustomErrors.CreateCustomError(
+      "Failed to write to the database after multiple retries",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
 });
 
 const User = mongoose.model("User", UserSchema);
