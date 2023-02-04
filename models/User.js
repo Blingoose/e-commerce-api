@@ -66,12 +66,12 @@ const UserSchema = new mongoose.Schema({
   ],
 
   countFollowers: {
-    type: String,
+    type: Number,
     default: 0,
   },
 
   countFollowing: {
-    type: String,
+    type: Number,
     default: 0,
   },
 });
@@ -93,13 +93,13 @@ UserSchema.pre("save", async function () {
 
     // Update followers array
     await User.updateMany(
-      { followers: previousUsername },
+      { followers: { $in: [previousUsername] } },
       { $set: { "followers.$": this.username } }
     );
 
     // Update following array
     await User.updateMany(
-      { following: previousUsername },
+      { following: { $in: [previousUsername] } },
       { $set: { "following.$": this.username } }
     );
 
@@ -113,7 +113,9 @@ UserSchema.pre("save", async function () {
 
 UserSchema.pre("remove", async function () {
   //Remove all reviews that are associated with that user to be deleted.
-  await this.model("Review").deleteMany({ product: this._id });
+  await this.model("Review").deleteMany({ username: this.username });
+
+  // TODO ----------> Update all products that were reviewd by this deleted user to exclude his ratings and also update numOfReviews.  <------TODO
 
   // Remove the deleted username from all associated followers & following users &&
   // update the countFollowers & countFollowing for all users who were associated with the deleted username.
@@ -122,7 +124,7 @@ UserSchema.pre("remove", async function () {
   const operations = [
     {
       updateMany: {
-        filter: { followers: deletedUsername },
+        filter: { followers: { $in: [deletedUsername] } },
         update: {
           $pull: { followers: deletedUsername },
           $inc: { countFollowers: -1 },
@@ -131,7 +133,7 @@ UserSchema.pre("remove", async function () {
     },
     {
       updateMany: {
-        filter: { following: deletedUsername },
+        filter: { following: { $in: [deletedUsername] } },
         update: {
           $pull: { following: deletedUsername },
           $inc: { countFollowing: -1 },
