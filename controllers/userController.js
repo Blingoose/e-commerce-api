@@ -44,7 +44,9 @@ const userControllers = {
     }).select(exclude);
 
     if (!currentUser) {
-      throw new CustomErrors.NotFoundError("Please log-in first");
+      throw new CustomErrors.NotFoundError(
+        "Something went wrong. This issue may happen if you're trying to hit this route just after deleting the user from database."
+      );
     }
     res.status(StatusCodes.OK).json({ user: currentUser });
   }),
