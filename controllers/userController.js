@@ -213,22 +213,3 @@ const userControllers = {
 };
 
 export default userControllers;
-
-//! Reference for using findOneAndUpdate, which doesn't triggers the pre("save") in the User module.
-// updateUser: asyncWrapper(async (req, res, next) => {
-//   const { name, email } = req.body;
-//   if (!name || !email) {
-//     throw new CustomErrors.BadRequestError("Must provide name and email");
-//   }
-
-//   const user = await User.findOneAndUpdate(
-//     { _id: req.user.userId },
-//     { $set: { email, name } },
-//     { new: true, runValidators: true }
-//   );
-
-//   const tokenUser = jwtHandler.createTokenUser(user);
-//   jwtHandler.attachCookiesToResponse({ res, user: tokenUser });
-
-//   res.status(StatusCodes.OK).json({ user: tokenUser });
-// })
