@@ -111,11 +111,47 @@ UserSchema.pre("save", async function () {
   }
 });
 
+// update numOfReviews and averageRating for each product that was previously reviewed by the deleted user, since all associated reviews are deleted too.
 UserSchema.pre("remove", async function () {
+  // Find all reviews posted by the deleted user
+  const reviews = await this.model("Review").find({ user: this._id });
+
   //Remove all reviews that are associated with that user to be deleted.
   await this.model("Review").deleteMany({ username: this.username });
+  console.log(reviews);
+  // Group the reviews by product and calculate the average rating and number of reviews
+  const aggregateResults = await this.model("Review").aggregate([
+    {
+      $match: {
+        product: { $in: reviews.map((review) => review.product) },
+      },
+    },
+    {
+      $group: {
+        _id: "$product",
+        averageRating: { $avg: "$rating" },
+        numOfReviews: { $sum: 1 },
+      },
+    },
+  ]);
 
-  // TODO ----------> Update all products that were reviewd by this deleted user to exclude his ratings and also update numOfReviews.  <------TODO
+  // Update all the products associated to the deleted user with the new average rating and number of reviews.
+  await this.model("Product").bulkWrite(
+    [
+      {
+        updateMany: {
+          filter: {
+            _id: reviews.map((result) => result.product),
+          },
+          update: {
+            averageRating: aggregateResults[0]?.averageRating || 0,
+            numOfReviews: aggregateResults[0]?.numOfReviews || 0,
+          },
+        },
+      },
+    ],
+    { ordered: true, forceServerObjectId: false }
+  );
 
   // Remove the deleted username from all associated followers & following users &&
   // update the countFollowers & countFollowing for all users who were associated with the deleted username.
