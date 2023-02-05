@@ -136,22 +136,23 @@ UserSchema.pre("remove", async function () {
   ]);
 
   // Update all the products associated to the deleted user with the new average rating and number of reviews.
-  await this.model("Product").bulkWrite(
-    [
-      {
-        updateMany: {
-          filter: {
-            _id: reviews.map((result) => result.product),
-          },
-          update: {
-            averageRating: aggregateResults[0]?.averageRating || 0,
-            numOfReviews: aggregateResults[0]?.numOfReviews || 0,
-          },
+
+  const updates = reviews.map((result, i) => {
+    return {
+      updateOne: {
+        filter: { _id: result.product },
+        update: {
+          averageRating: aggregateResults[i]?.averageRating || 0,
+          numOfReviews: aggregateResults[i]?.numOfReviews || 0,
         },
       },
-    ],
-    { ordered: true, forceServerObjectId: false }
-  );
+    };
+  });
+
+  await this.model("Product").bulkWrite(updates, {
+    ordered: true,
+    forceServerObjectId: false,
+  });
 
   // Remove the deleted username from all associated followers & following users &&
   // update the countFollowers & countFollowing for all users who were associated with the deleted username.
