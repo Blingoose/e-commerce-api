@@ -118,7 +118,7 @@ UserSchema.pre("remove", async function () {
 
   //Remove all reviews that are associated with that user to be deleted.
   await this.model("Review").deleteMany({ username: this.username });
-  console.log(reviews);
+
   // Group the reviews by product and calculate the average rating and number of reviews
   const aggregateResults = await this.model("Review").aggregate([
     {
@@ -179,7 +179,6 @@ UserSchema.pre("remove", async function () {
   ];
 
   // If some of the bulk writes fail, it'll be retried 5 times.
-
   let success = false;
   let retries = 0;
   const maxRetries = 5;
