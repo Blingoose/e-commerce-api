@@ -43,11 +43,6 @@ const userControllers = {
       username: req.user.username,
     }).select(exclude);
 
-    if (!currentUser) {
-      throw new CustomErrors.NotFoundError(
-        "Something went wrong. This issue may happen if you're trying to hit this route just after deleting the user from database."
-      );
-    }
     res.status(StatusCodes.OK).json({ user: currentUser });
   }),
 
@@ -106,6 +101,12 @@ const userControllers = {
 
     checkPermission(req.user, user._id.toString(), username);
     await user.remove();
+
+    //logout after user deletion
+    res.cookie("token", "logout", {
+      httpOnly: true,
+      expires: new Date(Date.now()),
+    });
 
     res
       .status(StatusCodes.OK)
