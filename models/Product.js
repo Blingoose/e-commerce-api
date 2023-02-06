@@ -24,7 +24,8 @@ const ProductSchema = new mongoose.Schema(
 
     image: {
       type: String,
-      default: "/uploads/example.svg",
+      default:
+        "https://res.cloudinary.com/dwsodcnc4/image/upload/v1675717646/e-commerce-api/example_irjybr.svg",
     },
 
     category: {
