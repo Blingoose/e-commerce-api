@@ -114,7 +114,9 @@ UserSchema.pre("save", async function () {
 // update numOfReviews and averageRating for each product that was previously reviewed by the deleted user, since all associated reviews are deleted too.
 UserSchema.pre("remove", async function () {
   // Find all reviews posted by the deleted user
-  const reviews = await this.model("Review").find({ user: this._id });
+  const reviews = await this.model("Review")
+    .find({ user: this._id })
+    .sort({ product: 1 });
 
   //Remove all reviews that are associated with that user to be deleted.
   await this.model("Review").deleteMany({ username: this.username });
@@ -133,9 +135,16 @@ UserSchema.pre("remove", async function () {
         numOfReviews: { $sum: 1 },
       },
     },
+    {
+      $sort: { _id: 1 },
+    },
+    {
+      $project: {
+        averageRating: { $round: ["$averageRating", 1] },
+        numOfReviews: 1,
+      },
+    },
   ]);
-
-  // Update all the products associated to the deleted user with the new average rating and number of reviews.
 
   const updates = reviews.map((result, i) => {
     return {
@@ -148,6 +157,8 @@ UserSchema.pre("remove", async function () {
       },
     };
   });
+
+  // console.log(updates);
 
   await this.model("Product").bulkWrite(updates, {
     ordered: true,
