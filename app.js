@@ -11,8 +11,13 @@ import orderRouter from "./routes/orderRoutes.js";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
+import { rateLimit } from "express-rate-limit";
+import xss from "xss-clean";
+import cors from "cors";
+import mongoSanitize from "express-mongo-sanitize";
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
+import helmet from "helmet";
 
 dotenv.config();
 cloudinary.config({
@@ -23,12 +28,26 @@ cloudinary.config({
 
 const server = express();
 
+server.set("trust proxy", 1);
+
+// for security purposes
+server.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 60,
+  })
+);
+server.use(helmet());
+server.use(cors());
+server.use(xss());
+server.use(mongoSanitize());
+
 // application specific middleware
 server.use(morgan("tiny"));
 server.use(express.json());
+server.use(fileUpload({ useTempFiles: true }));
 server.use(cookieParser(process.env.JWT_SECRET));
 server.use(express.static("./public"));
-server.use(fileUpload());
 
 server.get("/", (req, res) => {
   res.send("Test the main route --->  /api/v1/auth");
@@ -40,7 +59,7 @@ server.get("/api/v1", (req, res) => {
   res.send("Test cookies");
 });
 
-// routes
+// routesi
 server.use("/api/v1/auth", authRouter);
 server.use("/api/v1/users", userRouter);
 server.use("/api/v1/products", productRouter);
