@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
-import Product from "../models/product.js";
+import Product from "../models/Product.js";
 import asyncWrapper from "../middleware/asyncWrapper.js";
 import { StatusCodes } from "http-status-codes";
 import CustomErrors from "../errors/error-index.js";

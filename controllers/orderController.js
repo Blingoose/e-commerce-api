@@ -1,5 +1,5 @@
 import Order from "../models/order.js";
-import Product from "../models/product.js";
+import Product from "../models/Product.js";
 import CustomErrors from "../errors/error-index.js";
 import asyncWrapper from "../middleware/asyncWrapper.js";
 import checkPermission from "../utils/checkPermissions.js";

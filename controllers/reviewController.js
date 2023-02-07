@@ -1,5 +1,5 @@
-import Review from "../models/review.js";
-import Product from "../models/product.js";
+import Review from "../models/Review.js";
+import Product from "../models/Product.js";
 import asyncWrapper from "../middleware/asyncWrapper.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
