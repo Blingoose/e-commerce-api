@@ -87,7 +87,6 @@ const productControllers = {
       // error if the image is too large
       const maxSize = 1000 * 1000 * 7;
       if (productImage.size > maxSize) {
-        removeTempImageFolder();
         throw new CustomErrors.BadRequestError(
           "Image too big, max size is 7 MB"
         );
