@@ -4,7 +4,6 @@ import asyncWrapper from "../middleware/asyncWrapper.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import checkPermission from "../utils/checkPermissions.js";
-import { model } from "mongoose";
 
 const reviewControllers = {
   createReview: asyncWrapper(async (req, res, next) => {

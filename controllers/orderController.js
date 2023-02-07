@@ -1,4 +1,4 @@
-import Order from "../models/order.js";
+import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 import CustomErrors from "../errors/error-index.js";
 import asyncWrapper from "../middleware/asyncWrapper.js";
