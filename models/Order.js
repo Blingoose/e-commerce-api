@@ -33,7 +33,7 @@ const SingleOrderItemSchema = new mongoose.Schema({
   },
 });
 
-const OrderSchema = mongoose.Schema(
+const OrderSchema = new mongoose.Schema(
   {
     tax: {
       type: Number,
