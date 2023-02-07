@@ -53,12 +53,15 @@ server.get("/", (req, res) => {
   res.send("Test the main route --->  /api/v1/auth");
 });
 
-// routesi
-server.use("/api/v1/auth", authRouter);
-server.use("/api/v1/users", userRouter);
-server.use("/api/v1/products", productRouter);
-server.use("/api/v1/reviews", reviewRouter);
-server.use("/api/v1/orders", orderRouter);
+//base route
+const baseRoute = "/api/v1";
+
+// routes
+server.use(baseRoute + "/auth", authRouter);
+server.use(baseRoute + "/users", userRouter);
+server.use(baseRoute + "/products", productRouter);
+server.use(baseRoute + "/reviews", reviewRouter);
+server.use(baseRoute + "/orders", orderRouter);
 
 // error handler & not found middleware
 server.use(notFoundRoute);
