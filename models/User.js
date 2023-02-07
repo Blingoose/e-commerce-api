@@ -158,8 +158,6 @@ UserSchema.pre("remove", async function () {
     };
   });
 
-  // console.log(updates);
-
   await this.model("Product").bulkWrite(updates, {
     ordered: true,
     forceServerObjectId: false,
