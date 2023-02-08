@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import OwnedProduct from "./OwnedProduct";
 
 const SingleOrderItemSchema = new mongoose.Schema({
   name: {
@@ -82,6 +83,24 @@ const OrderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// initialize OwnedProduct document when the user creates a order for the first time.
+OrderSchema.post("save", async function () {
+  const ownedProduct = await OwnedProduct.findOne({
+    user: this.user,
+  });
+
+  if (!ownedProduct) {
+    const initializeOwnedProductDocument = new OwnedProduct({
+      user: this.user,
+      products: [],
+    });
+    await initializeOwnedProductDocument.save();
+  } else if (!ownedProduct.isDocumentInitialized) {
+    ownedProduct.isDocumentInitialized = true;
+    await ownedProduct.save();
+  }
+});
 
 const Order = mongoose.model("Order", OrderSchema);
 
