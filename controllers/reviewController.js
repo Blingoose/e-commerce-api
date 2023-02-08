@@ -16,6 +16,14 @@ const reviewControllers = {
       throw new CustomErrors.NotFoundError(`No product with id: ${productId}`);
     }
 
+    // TODO ---------> Create a fuctionality to let a user post a review only for purchased products <---------
+    // const userOrders = await model("Order").find({ user: userId });
+    // if (userOrders.length === 0) {
+    //   throw new CustomErrors.BadRequestError(
+    //     "You have to purchase the product in order to place a review."
+    //   );
+    // }
+
     const alreadySubmitted = await Review.findOne({
       product: productId,
       user: userId,
