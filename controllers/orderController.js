@@ -27,14 +27,15 @@ const fakeStripeAPI = async ({ amount, currency }) => {
 const orderControllers = {
   createOrder: asyncWrapper(async (req, res, next) => {
     const { cartItems, tax, shippingFee } = req.body;
+    // initialize a document for ownedProduct on order creation
     const ownedProduct = await OwnedProduct.findOne({ user: req.user.userId });
     if (!ownedProduct) {
-      new OwnedProduct({
+      const initializeOwnedProductDocument = new OwnedProduct({
         user: req.user.userId,
         products: [],
       });
     }
-    // initialize a document for ownedProduct on order creation
+    await initializeOwnedProductDocument.save();
 
     if (!cartItems || cartItems.length < 1) {
       throw new CustomErrors.BadRequestError("No cart items provided");
