@@ -61,7 +61,8 @@ const orderControllers = {
 
     total = tax + shippingFee + subtotal;
     if (!total) {
-      // if one of the required fields is missing or can't be summed up
+      // setting total = 0 will remove the weird error message for that field if one of the required fields is missing or can't be summed up.
+      // it's not necessary, but I think it's more elegant to hide from the error response.
       total = 0;
     }
 
@@ -141,9 +142,8 @@ const orderControllers = {
 
     await order.save();
 
-    let ownedProduct = await OwnedProduct.findOne({ user: req.user.userId });
-
     // update owned products
+    let ownedProduct = await OwnedProduct.findOne({ user: req.user.userId });
     if (!ownedProduct) {
       ownedProduct = new OwnedProduct({ user: req.user.userId, products: [] });
     }
