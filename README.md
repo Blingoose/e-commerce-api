@@ -84,7 +84,7 @@ But it will work fine with Postman.
 
 ### Review
 
-- `POST /reviews`: Write a review for a product
+- `POST /reviews`: Write a review for a product (only for purchased products)
 - `GET /reviews`: Retrieve all reviews
 - `GET /reviews/:{id}`: Retrieve details of a specific review
 - `PATCH /reviews/:{id}`: Update the details of a review
