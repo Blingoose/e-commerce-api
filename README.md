@@ -35,6 +35,10 @@ All other endpoints do not require authentication.
 
 In case of any errors, the API will return a JSON object with an error message. The HTTP status code will also indicate the type of error that occurred.
 
+## Main URL
+
+[Main URL](https://e-commerce-api-jxc4.onrender.com/api/v1)
+
 ## Endpoints
 
 ### Auth:
