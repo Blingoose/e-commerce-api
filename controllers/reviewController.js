@@ -27,7 +27,7 @@ const reviewControllers = {
       );
     }
 
-    // let a user post a review only for purchased products
+    // let the user submit reviews only for purchased products
     const productIdToObjectId = mongoose.Types.ObjectId(productId);
     const ownedProducts = await OwnedProduct.findOne({
       products: { $in: [productIdToObjectId] },
