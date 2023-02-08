@@ -17,6 +17,7 @@ The following endpoints require authentication (user must be registered and logg
 
 - Updating details of a specific user
 - Reviewing a product
+- Retrieving details about users
 - Creating an order
 - Updating an order
 - Retrieving current user's order
