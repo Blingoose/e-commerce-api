@@ -8,9 +8,15 @@ const OwnedProductsSchema = new mongoose.Schema({
       index: true,
     },
   ],
+
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
+  },
+
+  isDocumentInitialized: {
+    type: Boolean,
+    default: false,
   },
 });
 
