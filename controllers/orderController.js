@@ -144,11 +144,16 @@ const orderControllers = {
     const ownedProduct = await OwnedProduct.findOne({ user: req.user.userId });
 
     // update owned products
-    for (const item of order.orderItems) {
-      if (!ownedProduct.products.includes(item.product)) {
-        ownedProduct.products.push(item.product);
+    if (!ownedProduct) {
+      ownedProduct.products.push(item.product);
+    } else {
+      for (const item of order.orderItems) {
+        if (!ownedProduct.products.includes(item.product)) {
+          ownedProduct.products.push(item.product);
+        }
       }
     }
+
     await ownedProduct.save();
 
     res.status(StatusCodes.OK).json({ order });
