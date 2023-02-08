@@ -72,7 +72,7 @@ const orderControllers = {
       currency: "ils",
     });
 
-    const order = await Order.create({
+    const order = new Order({
       orderItems,
       total,
       subtotal,
@@ -82,15 +82,7 @@ const orderControllers = {
       user: req.user.userId,
     });
 
-    // initialize a document for ownedProduct on order creation
-    const ownedProduct = await OwnedProduct.findOne({ user: req.user.userId });
-    if (!ownedProduct) {
-      const initializeOwnedProductDocument = new OwnedProduct({
-        user: req.user.userId,
-        products: [],
-      });
-      await initializeOwnedProductDocument.save();
-    }
+    await order.save();
 
     res.status(StatusCodes.CREATED).json({
       order,
@@ -153,15 +145,14 @@ const orderControllers = {
     await order.save();
 
     // update owned products
-    const ownedProduct = await OwnedProduct.findOne({ user: req.user.userId });
-
-    for (const item of order.orderItems) {
-      if (!ownedProduct.products.includes(item.product)) {
-        ownedProduct.products.push(item.product);
+    await OwnedProduct.updateOne(
+      { user: req.user.userId },
+      {
+        $addToSet: {
+          products: order.orderItems.map((item) => item.product),
+        },
       }
-    }
-
-    await ownedProduct.save();
+    );
 
     res.status(StatusCodes.OK).json({ order });
   }),
