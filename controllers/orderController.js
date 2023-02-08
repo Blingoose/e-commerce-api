@@ -28,6 +28,12 @@ const orderControllers = {
   createOrder: asyncWrapper(async (req, res, next) => {
     const { cartItems, tax, shippingFee } = req.body;
 
+    // initialize a document for ownedProduct on order creation
+    new OwnedProduct({
+      user: req.user.userId,
+      products: [],
+    });
+
     if (!cartItems || cartItems.length < 1) {
       throw new CustomErrors.BadRequestError("No cart items provided");
     }
@@ -143,10 +149,7 @@ const orderControllers = {
     await order.save();
 
     // update owned products
-    let ownedProduct = await OwnedProduct.findOne({ user: req.user.userId });
-    if (!ownedProduct) {
-      ownedProduct = new OwnedProduct({ user: req.user.userId, products: [] });
-    }
+    const ownedProduct = await OwnedProduct.findOne({ user: req.user.userId });
 
     for (const item of order.orderItems) {
       if (!ownedProduct.products.includes(item.product)) {

@@ -27,11 +27,12 @@ const reviewControllers = {
     }
 
     // let a user post a review only for purchased products
+    const productIdToObjectId = mongoose.Types.ObjectId(productId);
     const ownedProducts = await OwnedProduct.find({
-      products: { $in: [productId] },
+      products: { $in: [productIdToObjectId] },
     });
 
-    if (!ownedProducts) {
+    if (ownedProducts.length === 0) {
       throw new CustomErrors.BadRequestError(
         "You have to purchase the product in order to place a review."
       );
