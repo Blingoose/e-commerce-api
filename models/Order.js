@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import OwnedProduct from "./OwnedProduct";
+import OwnedProduct from "./OwnedProduct.js";
 
 const SingleOrderItemSchema = new mongoose.Schema({
   name: {
