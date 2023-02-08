@@ -64,7 +64,7 @@ In case of any errors, the API will return a JSON object with an error message. 
 - `GET /products/:{id}`: Retrieve details of a specific product
 - `PATCH /products/:{id}`: Update details of a specific product (available only to admin)
 - `DELETE /products/:{id}`: Delete a specific product (available only to admin)
-- `POST /products/uploadImage`: Upload an image to get a source link that can be added to a product (available only to admin)
+- `POST /products/uploadImage`: Upload an image to get a source link (available only to admin)
 - `GET /products/:{id}/reviews`: Retrieve all reviews for a specific product
 
 ### Review
