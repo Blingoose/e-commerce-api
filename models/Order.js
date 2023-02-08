@@ -96,9 +96,6 @@ OrderSchema.post("save", async function () {
       products: [],
     });
     await initializeOwnedProductDocument.save();
-  } else if (!ownedProduct.isDocumentInitialized) {
-    ownedProduct.isDocumentInitialized = true;
-    await ownedProduct.save();
   }
 });
 

@@ -13,11 +13,6 @@ const OwnedProductsSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-
-  isDocumentInitialized: {
-    type: Boolean,
-    default: false,
-  },
 });
 
 const OwnedProduct = mongoose.model("OwnedProduct", OwnedProductsSchema);
