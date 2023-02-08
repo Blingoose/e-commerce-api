@@ -4,6 +4,7 @@ import asyncWrapper from "../middleware/asyncWrapper.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import checkPermission from "../utils/checkPermissions.js";
+import { model } from "mongoose";
 
 const reviewControllers = {
   createReview: asyncWrapper(async (req, res, next) => {
@@ -16,14 +17,26 @@ const reviewControllers = {
       throw new CustomErrors.NotFoundError(`No product with id: ${productId}`);
     }
 
-    // TODO ---------> Create a fuctionality to let a user post a review only for purchased products <---------
-    // const userOrders = await model("Order").find({ user: userId });
-    // if (userOrders.length === 0) {
-    //   throw new CustomErrors.BadRequestError(
-    //     "You have to purchase the product in order to place a review."
-    //   );
-    // }
+    // check if the user has ordered any items at all
+    const orderCount = await model("Order").countDocuments({ user: userId });
+    if (orderCount === 0) {
+      throw new CustomErrors.BadRequestError(
+        "You have to purchase the product in order to place a review."
+      );
+    }
 
+    // let a user post a review only for purchased products
+    const ownedProducts = await model("OwnedProduct").find({
+      products: { $in: [productId] },
+    });
+
+    if (!ownedProducts) {
+      throw new CustomErrors.BadRequestError(
+        "You have to purchase the product in order to place a review."
+      );
+    }
+
+    // check if the user already submitted a review for this product
     const alreadySubmitted = await Review.findOne({
       product: productId,
       user: userId,
