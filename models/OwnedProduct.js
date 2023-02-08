@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
 
 const OwnedProductsSchema = new mongoose.Schema({
-  products: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: "Product",
-  },
+  products: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+    },
+  ],
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
