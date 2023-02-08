@@ -44,7 +44,7 @@ Web Services on the free instance type on Render.com are automatically spun down
 This can cause a response delay of up to 30 seconds for the first request that comes in after a period of inactivity. Open the link and wait for a response to wake the server up.
 
 **Notice 2-**
-Right now there is NO front end-page. When visiting the link you will get 'Route does not exist'.
+Right now there is NO front-end page. When visiting the link you will get 'Route does not exist'.
 But it will work fine with Postman.
 
 ## Endpoints
