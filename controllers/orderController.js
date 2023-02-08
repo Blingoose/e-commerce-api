@@ -145,12 +145,12 @@ const orderControllers = {
 
     // update owned products
     if (!ownedProduct) {
-      ownedProduct.products.push(item.product);
-    } else {
-      for (const item of order.orderItems) {
-        if (!ownedProduct.products.includes(item.product)) {
-          ownedProduct.products.push(item.product);
-        }
+      ownedProduct = new OwnedProduct({ user: req.user.userId, products: [] });
+    }
+
+    for (const item of order.orderItems) {
+      if (!ownedProduct.products.includes(item.product)) {
+        ownedProduct.products.push(item.product);
       }
     }
 
