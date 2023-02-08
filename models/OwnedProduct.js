@@ -5,6 +5,7 @@ const OwnedProductsSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
+      index: true,
     },
   ],
   user: {
