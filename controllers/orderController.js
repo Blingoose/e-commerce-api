@@ -1,5 +1,6 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
+import OwnedProduct from "../models/OwnedProduct.js";
 import CustomErrors from "../errors/error-index.js";
 import asyncWrapper from "../middleware/asyncWrapper.js";
 import checkPermission from "../utils/checkPermissions.js";
@@ -139,6 +140,16 @@ const orderControllers = {
     order.status = "paid";
 
     await order.save();
+
+    const ownedProduct = await OwnedProduct.findOne({ user: userId });
+
+    // update owned products
+    for (const item of order.orderItems) {
+      if (!ownedProduct.products.includes(item.product)) {
+        ownedProduct.products.push(item.product);
+      }
+    }
+    await ownedProduct.save();
 
     res.status(StatusCodes.OK).json({ order });
   }),
