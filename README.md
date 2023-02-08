@@ -68,8 +68,8 @@ But it will work fine with Postman.
 
 **_ Experimental User Endpoints _**
 
-- `POST /users/:{username}/unfollow`: Follow a user
-- `POST /users/:{username}`: Unfollow a user
+- `POST /users/:{username}/follow`: Follow a user
+- `POST /users/:{username}/unfollow`: Unfollow a user
 
 ### Product
 
