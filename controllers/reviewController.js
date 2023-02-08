@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Review from "../models/Review.js";
 import Product from "../models/Product.js";
 import OwnedProduct from "../models/OwnedProduct.js";
@@ -28,11 +29,11 @@ const reviewControllers = {
 
     // let a user post a review only for purchased products
     const productIdToObjectId = mongoose.Types.ObjectId(productId);
-    const ownedProducts = await OwnedProduct.find({
+    const ownedProducts = await OwnedProduct.findOne({
       products: { $in: [productIdToObjectId] },
     });
 
-    if (ownedProducts.length === 0) {
+    if (!ownedProducts) {
       throw new CustomErrors.BadRequestError(
         "You have to purchase the product in order to place a review."
       );
