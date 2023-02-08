@@ -141,7 +141,7 @@ const orderControllers = {
 
     await order.save();
 
-    const ownedProduct = await OwnedProduct.findOne({ user: userId });
+    const ownedProduct = await OwnedProduct.findOne({ user: req.user.userId });
 
     // update owned products
     for (const item of order.orderItems) {
