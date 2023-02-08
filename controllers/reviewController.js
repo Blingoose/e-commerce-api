@@ -1,10 +1,11 @@
 import Review from "../models/Review.js";
 import Product from "../models/Product.js";
+import OwnedProduct from "../models/OwnedProduct.js";
+import Order from "../models/Order.js";
 import asyncWrapper from "../middleware/asyncWrapper.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import checkPermission from "../utils/checkPermissions.js";
-import { model } from "mongoose";
 
 const reviewControllers = {
   createReview: asyncWrapper(async (req, res, next) => {
@@ -18,7 +19,7 @@ const reviewControllers = {
     }
 
     // check if the user has ordered any items at all
-    const orderCount = await model("Order").countDocuments({ user: userId });
+    const orderCount = await Order.countDocuments({ user: userId });
     if (orderCount === 0) {
       throw new CustomErrors.BadRequestError(
         "You have to purchase the product in order to place a review."
@@ -26,7 +27,7 @@ const reviewControllers = {
     }
 
     // let a user post a review only for purchased products
-    const ownedProducts = await model("OwnedProduct").find({
+    const ownedProducts = await OwnedProduct.find({
       products: { $in: [productId] },
     });
 
