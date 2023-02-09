@@ -46,7 +46,7 @@ const orderControllers = {
         );
       }
 
-      if (product.inventory - item.amount >= 0 || product.inventory === 0) {
+      if (product.inventory - item.amount < 0 || product.inventory === 0) {
         outOfStockProducts.push(item.product);
       }
       const { name, price, image, _id } = product;
