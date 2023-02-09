@@ -68,7 +68,7 @@ const orderControllers = {
       throw new CustomErrors.BadRequestError(
         `Unfortunately, these product id's are out of stock: ${outOfStockProducts}`
       );
-    } else if (outOfStockProducts === 1) {
+    } else if (outOfStockProducts.length === 1) {
       throw new CustomErrors.BadRequestError(
         `Unfortunately, this product id is out of stock: ${outOfStockProducts}`
       );
