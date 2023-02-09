@@ -84,7 +84,7 @@ const OrderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// initialize OwnedProduct document when the user creates a order for the first time.
+// initialize OwnedProduct document when the user creates an order for the first time.
 OrderSchema.post("save", async function () {
   const ownedProduct = await OwnedProduct.findOne({
     user: this.user,
