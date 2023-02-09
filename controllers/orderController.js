@@ -35,6 +35,7 @@ const orderControllers = {
     let orderItems = [];
     let subtotal = 0;
     let total = 0;
+    const outOfStockProducts = [];
 
     for (const item of cartItems) {
       const product = await Product.findById(item.product);
@@ -43,6 +44,10 @@ const orderControllers = {
         throw new CustomErrors.NotFoundError(
           `No product found with id: ${item.product}`
         );
+      }
+
+      if (product.inventory - item.amount >= 0 || product.inventory === 0) {
+        outOfStockProducts.push(item.product);
       }
       const { name, price, image, _id } = product;
 
@@ -57,6 +62,16 @@ const orderControllers = {
       // add item to order
       orderItems = [...orderItems, singleOrderItem];
       subtotal += item.amount * price;
+    }
+
+    if (outOfStockProducts.length > 1) {
+      throw new CustomErrors.BadRequestError(
+        `Unfortunately, these product id's are out of stock: ${outOfStockProducts}`
+      );
+    } else if (outOfStockProducts === 1) {
+      throw new CustomErrors.BadRequestError(
+        `Unfortunately, this product id is out of stock: ${outOfStockProducts}`
+      );
     }
 
     total = tax + shippingFee + subtotal;
@@ -83,6 +98,12 @@ const orderControllers = {
     });
 
     await order.save();
+
+    for (const item of orderItems) {
+      const product = await Product.findById(item.product);
+      product.inventory -= item.amount;
+      product.save();
+    }
 
     res.status(StatusCodes.CREATED).json({
       order,
