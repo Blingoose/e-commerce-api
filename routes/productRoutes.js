@@ -15,7 +15,10 @@ productRouter
     authorizePermissions("admin", "owner"),
     productControllers.createProduct
   )
-  .get(productControllers.getAllProducts)
+  .get(productControllers.getAllProducts);
+
+productRouter
+  .route("/ownedProducts")
   .get(authenticateUser, productControllers.getOwnedProducts);
 
 productRouter
