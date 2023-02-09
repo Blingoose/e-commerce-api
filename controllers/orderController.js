@@ -35,7 +35,7 @@ const orderControllers = {
     let orderItems = [];
     let subtotal = 0;
     let total = 0;
-    const outOfStockProducts = [];
+    const notEnoughInStock = [];
 
     for (const item of cartItems) {
       const product = await Product.findById(item.product);
@@ -47,7 +47,11 @@ const orderControllers = {
       }
 
       if (product.inventory - item.amount < 0 || product.inventory === 0) {
-        outOfStockProducts.push(item.product);
+        notEnoughInStock.push({
+          id: item.product,
+          requestedAmount: item.amount,
+          inventory: product.inventory,
+        });
       }
       const { name, price, image, _id } = product;
 
@@ -64,13 +68,14 @@ const orderControllers = {
       subtotal += item.amount * price;
     }
 
-    if (outOfStockProducts.length > 1) {
+    if (notEnoughInStock.length > 1) {
+      const failedItem = notEnoughInStock[0];
       throw new CustomErrors.BadRequestError(
-        `Unfortunately, these product id's are out of stock: ${outOfStockProducts}`
+        `There are no ${failedItem.requestedAmount} units of item with: ${failedItem.id}. Current stock: ${failedItem.inventory}`
       );
-    } else if (outOfStockProducts.length === 1) {
+    } else if (notEnoughInStock.length === 1) {
       throw new CustomErrors.BadRequestError(
-        `Unfortunately, this product id is out of stock: ${outOfStockProducts}`
+        `Unfortunately, this product id is out of stock: ${notEnoughInStock}`
       );
     }
 
