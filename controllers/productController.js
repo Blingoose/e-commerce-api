@@ -2,6 +2,7 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import Product from "../models/Product.js";
+import OwnedProduct from "../models/OwnedProduct.js";
 import asyncWrapper from "../middleware/asyncWrapper.js";
 import { StatusCodes } from "http-status-codes";
 import CustomErrors from "../errors/error-index.js";
@@ -108,6 +109,23 @@ const productControllers = {
         force: true,
       });
     }
+  }),
+
+  getOwnedProducts: asyncWrapper(async (req, res, next) => {
+    const { userId } = req.user;
+    const ownedProducts = await OwnedProduct.findOne({ user: userId }).populate(
+      {
+        path: "products",
+        select: "name image",
+      }
+    );
+    if (ownedProducts.products.length === 0) {
+      throw new CustomErrors.NotFoundError(
+        "You currently don't own any products"
+      );
+    }
+
+    res.status(StatusCodes.OK).json({ ownedProducts });
   }),
 };
 

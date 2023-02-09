@@ -15,7 +15,8 @@ productRouter
     authorizePermissions("admin", "owner"),
     productControllers.createProduct
   )
-  .get(productControllers.getAllProducts);
+  .get(productControllers.getAllProducts)
+  .get(authenticateUser, productControllers.getOwnedProducts);
 
 productRouter
   .route("/uploadImage")
