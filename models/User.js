@@ -113,7 +113,8 @@ UserSchema.pre("save", async function () {
 
 // update numOfReviews and averageRating for each product that was previously reviewed by the deleted user, since all associated reviews are deleted too.
 UserSchema.pre("remove", async function () {
-  //TODO ---------------------->| Remove OwnedProduct document when user deletes himself from DB |<------------------- TODO
+  // Remove OwnedProduct document when the user deletes himself from DB.
+  await this.model("OwnedProduct").deleteOne({ user: this._id });
 
   // Find all reviews posted by the deleted user
   const reviews = await this.model("Review")
