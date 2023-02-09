@@ -70,7 +70,7 @@ const productControllers = {
         throw new CustomErrors.BadRequestError("No file uploaded");
       }
 
-      // error if no file selected
+      // error if no file selected.
       const { image } = req.files;
       if (!image) {
         throw new CustomErrors.BadRequestError(
@@ -78,13 +78,13 @@ const productControllers = {
         );
       }
 
-      // error if the file isn't an image
+      // error if the file isn't an image.
       const productImage = req.files.image;
       if (!productImage.mimetype.startsWith("image")) {
         throw new CustomErrors.BadRequestError("Please upload image");
       }
 
-      // error if the image is too large
+      // error if the image is too large.
       const maxSize = 1000 * 1000 * 7;
       if (productImage.size > maxSize) {
         throw new CustomErrors.BadRequestError(
@@ -92,7 +92,7 @@ const productControllers = {
         );
       }
 
-      // upload to cloudinary
+      // upload to cloudinary.
       const result = await cloudinary.uploader.upload(
         productImage.tempFilePath,
         {
@@ -102,8 +102,8 @@ const productControllers = {
       );
       res.status(StatusCodes.OK).json({ imageSrc: result.secure_url });
     } finally {
-      //remove the temporary image in the end, both for success or failure
-      fs.rmSync(path.join(__dirname, "../tmp"), {
+      //remove the temporary folder in the end, both for success or failure.
+      await fs.promises.rm(path.join(__dirname, "../tmp"), {
         recursive: true,
         force: true,
       });

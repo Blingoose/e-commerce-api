@@ -46,13 +46,13 @@ const OrderSchema = new mongoose.Schema(
       required: [true, "Please provide value"],
     },
 
-    // amount * price
+    // amount * price.
     subtotal: {
       type: Number,
       required: true,
     },
 
-    // tax + shippingFee + subtotal
+    // tax + shippingFee + subtotal.
     total: {
       type: Number,
       required: true,

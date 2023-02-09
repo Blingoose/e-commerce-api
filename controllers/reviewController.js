@@ -23,7 +23,7 @@ const reviewControllers = {
     const orderCount = await Order.countDocuments({ user: userId });
     if (orderCount === 0) {
       throw new CustomErrors.BadRequestError(
-        "You have to purchase the product in order to place a review."
+        "You have to purchase the product in order to place a review"
       );
     }
 
@@ -35,11 +35,11 @@ const reviewControllers = {
 
     if (!ownedProducts) {
       throw new CustomErrors.BadRequestError(
-        "You have to purchase the product in order to place a review."
+        "You have to purchase the product in order to place a review"
       );
     }
 
-    // check if the user already submitted a review for this product
+    // check if the user had already submitted a review for this product.
     const alreadySubmitted = await Review.findOne({
       product: productId,
       user: userId,

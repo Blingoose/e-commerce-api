@@ -102,7 +102,7 @@ const userControllers = {
     checkPermission(req.user, user._id.toString(), username);
     await user.remove();
 
-    //logout after user deletion
+    //logout after user deletion.
     res.cookie("token", "logout", {
       httpOnly: true,
       expires: new Date(Date.now()),

@@ -103,7 +103,7 @@ UserSchema.pre("save", async function () {
       { $set: { "following.$": this.username } }
     );
 
-    //When user changes his username, update all associated reviews posted by him, with that new username
+    //When user changes his username, update all associated reviews posted by him, with that new username.
     await this.model("Review").updateMany(
       { username: previousUsername },
       { $set: { username: this.username } }
@@ -113,6 +113,8 @@ UserSchema.pre("save", async function () {
 
 // update numOfReviews and averageRating for each product that was previously reviewed by the deleted user, since all associated reviews are deleted too.
 UserSchema.pre("remove", async function () {
+  //TODO ---------------------->| Remove OwnedProduct document when user deletes himself from DB |<------------------- TODO
+
   // Find all reviews posted by the deleted user
   const reviews = await this.model("Review")
     .find({ user: this._id })
@@ -121,7 +123,7 @@ UserSchema.pre("remove", async function () {
   //Remove all reviews that are associated with that user to be deleted.
   await this.model("Review").deleteMany({ username: this.username });
 
-  // Group the reviews by product and calculate the average rating and number of reviews
+  // Group the reviews by product and calculate the average rating and number of reviews.
   const aggregateResults = await this.model("Review").aggregate([
     {
       $match: {

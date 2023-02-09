@@ -9,7 +9,7 @@ const authControllers = {
   register: asyncWrapper(async (req, res, next) => {
     const { name, email, password, username } = req.body;
 
-    //the first created account will be an admin
+    //the first created account will be an admin.
     const isFirstAccount = (await User.countDocuments({})) === 0;
     const role = isFirstAccount ? "admin" : "user";
 
@@ -48,7 +48,7 @@ const authControllers = {
     res.status(StatusCodes.OK).json({ user: tokenUser });
   }),
 
-  logout: (req, res, next) => {
+  logout: (req, res) => {
     res.cookie("token", "logout", {
       httpOnly: true,
       expires: new Date(Date.now()),
