@@ -69,13 +69,15 @@ const orderControllers = {
     }
 
     if (notEnoughInStock.length > 1) {
+      throw new CustomErrors.BadRequestError(
+        `Unfortunately, this product id is out of stock: ${Object.values(
+          notEnoughInStock
+        )}`
+      );
+    } else if (notEnoughInStock.length === 1) {
       const failedItem = notEnoughInStock[0];
       throw new CustomErrors.BadRequestError(
         `There are no ${failedItem.requestedAmount} units of item with: ${failedItem.id}. Current stock: ${failedItem.inventory}`
-      );
-    } else if (notEnoughInStock.length === 1) {
-      throw new CustomErrors.BadRequestError(
-        `Unfortunately, this product id is out of stock: ${notEnoughInStock}`
       );
     }
 
