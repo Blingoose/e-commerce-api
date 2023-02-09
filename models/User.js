@@ -158,10 +158,37 @@ UserSchema.pre("remove", async function () {
     };
   });
 
-  await this.model("Product").bulkWrite(updates, {
-    ordered: true,
-    forceServerObjectId: false,
-  });
+  // If some of the bulk writes fail, it'll be retried up to 5 times.
+  let success = false;
+  let retries = 0;
+  const maxRetries = 5;
+  const retryInterval = 500;
+
+  while (!success && retries < maxRetries) {
+    try {
+      await this.model("Product").bulkWrite(updates, {
+        ordered: true,
+        forceServerObjectId: false,
+      });
+      success = true;
+    } catch (error) {
+      retries += 1;
+
+      console.error(
+        `Write failed, retrying in ${retryInterval}ms (${retries}/${maxRetries})`
+      );
+
+      //retry again ONLY after the timeout has ended.
+      await new Promise((resolve) => setTimeout(resolve, retryInterval));
+    }
+  }
+
+  if (!success) {
+    throw new CustomErrors.CreateCustomError(
+      "Something went wrong!",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
 
   // Remove the deleted username from all associated followers & following users &&
   // update the countFollowers & countFollowing for all users who were associated with the deleted username.
@@ -188,11 +215,9 @@ UserSchema.pre("remove", async function () {
     },
   ];
 
-  // If some of the bulk writes fail, it'll be retried 5 times.
-  let success = false;
-  let retries = 0;
-  const maxRetries = 5;
-  const retryInterval = 500;
+  //reset values
+  success = false;
+  retries = 0;
 
   while (!success && retries < maxRetries) {
     try {
