@@ -81,7 +81,7 @@ const ProductSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestaps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 //this enables the use of populate("reviews") in the getSingleProduct - to show all reviews for a single product.
