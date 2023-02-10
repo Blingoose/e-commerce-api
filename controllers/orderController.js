@@ -6,6 +6,7 @@ import asyncWrapper from "../middleware/asyncWrapper.js";
 import checkPermission from "../utils/checkPermissions.js";
 import { v4 } from "uuid";
 import { StatusCodes } from "http-status-codes";
+import { OutOfStockError } from "../errors/out-of-stock-error.js";
 
 const fakeStripeAPI = async ({ amount, currency }) => {
   const currencyConverter = {
@@ -69,16 +70,9 @@ const orderControllers = {
     }
 
     if (notEnoughInStock.length > 1) {
-      throw new CustomErrors.BadRequestError(
-        `Unfortunately, this product id is out of stock: ${Object.values(
-          notEnoughInStock
-        )}`
-      );
+      throw new OutOfStockError(notEnoughInStock);
     } else if (notEnoughInStock.length === 1) {
-      const failedItem = notEnoughInStock[0];
-      throw new CustomErrors.BadRequestError(
-        `There are no ${failedItem.requestedAmount} units of item with: ${failedItem.id}. Current stock: ${failedItem.inventory}`
-      );
+      throw new OutOfStockError(notEnoughInStock);
     }
 
     total = tax + shippingFee + subtotal;
