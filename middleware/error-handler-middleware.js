@@ -1,6 +1,13 @@
 import { StatusCodes } from "http-status-codes";
+import { OutOfStockError } from "../errors/out-of-stock-error.js";
 
 const errorHandlerMiddleware = (err, req, res, next) => {
+  if (err instanceof OutOfStockError) {
+    return res.status(StatusCodes.BAD_REQUEST).send({
+      error: err,
+    });
+  }
+
   let customError = {
     statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
     msg: err.message || "Something went wrong, try again later.",
