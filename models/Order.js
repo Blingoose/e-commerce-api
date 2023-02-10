@@ -17,11 +17,6 @@ const SingleOrderItemSchema = new mongoose.Schema({
     required: true,
   },
 
-  name: {
-    type: String,
-    required: true,
-  },
-
   product: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Product",
