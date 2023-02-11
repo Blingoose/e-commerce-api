@@ -1,13 +1,28 @@
 import { StatusCodes } from "http-status-codes";
-import { OutOfStockError } from "../errors/out-of-stock-error.js";
+import CustomErrors from "../errors/error-index.js";
 
-const errorHandlerMiddleware = (err, req, res, next) => {
-  if (err instanceof OutOfStockError) {
-    return res.status(StatusCodes.BAD_REQUEST).send({
-      error: err,
-    });
+const getInventoryErrorResponse = ({ notEnoughInventory, outOfStock }) => {
+  const message = {
+    name: "Inventory Error",
+  };
+
+  if (notEnoughInventory.length > 0) {
+    const prop = "Not Enough Inventory";
+    message[prop] = notEnoughInventory;
   }
 
+  if (outOfStock.length > 0) {
+    const prop = "Out Of Stock";
+    message[prop] = outOfStock;
+  }
+
+  return {
+    statusCode: StatusCodes.BAD_REQUEST,
+    message,
+  };
+};
+
+const errorHandlerMiddleware = (err, req, res, next) => {
   let customError = {
     statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
     msg: err.message || "Something went wrong, try again later.",
@@ -32,8 +47,14 @@ const errorHandlerMiddleware = (err, req, res, next) => {
     customError.msg = `No item found with id: ${err.value}`;
   }
 
+  if (err instanceof CustomErrors.InventoryError) {
+    const stockError = err.insufficientItems;
+    const { statusCode, message } = getInventoryErrorResponse(stockError);
+    customError.statusCode = statusCode;
+    customError.msg = message;
+  }
+
   res.status(customError.statusCode).json({ errMsg: customError.msg });
-  // res.status(customError.statusCode).json({ err });
 };
 
 export default errorHandlerMiddleware;
