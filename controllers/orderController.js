@@ -6,7 +6,6 @@ import asyncWrapper from "../middleware/asyncWrapper.js";
 import checkPermission from "../utils/checkPermissions.js";
 import { v4 } from "uuid";
 import { StatusCodes } from "http-status-codes";
-import { OutOfStockError } from "../errors/out-of-stock-error.js";
 
 const fakeStripeAPI = async ({ amount, currency }) => {
   const currencyConverter = {
@@ -36,7 +35,9 @@ const orderControllers = {
     let orderItems = [];
     let subtotal = 0;
     let total = 0;
-    const notEnoughInStock = [];
+    const insufficientInventory = { notEnoughInventory: [], outOfStock: [] };
+    let inventorySufficient = true;
+    const productIds = new Set();
 
     for (const item of cartItems) {
       const product = await Product.findById(item.product);
@@ -47,32 +48,51 @@ const orderControllers = {
         );
       }
 
-      if (product.inventory - item.amount < 0 || product.inventory === 0) {
-        notEnoughInStock.push({
+      // check if cartItems in req.body contain the same product more than once.
+      if (productIds.has(item.product)) {
+        throw new CustomErrors.BadRequestError(
+          "You cannot add the same product twice to the cart items "
+        );
+      }
+      productIds.add(item.product);
+
+      // check if any order product is out of stock or the requested amount is greated than the amount in the inventory.
+      if (product.inventory === 0) {
+        insufficientInventory.outOfStock.push({
           id: item.product,
+          name: product.name,
           requestedAmount: item.amount,
           inventory: product.inventory,
         });
+        inventorySufficient = false;
+      } else if (product.inventory - item.amount < 0) {
+        insufficientInventory.notEnoughInventory.push({
+          id: item.product,
+          name: product.name,
+          requestedAmount: item.amount,
+          inventory: product.inventory,
+        });
+        inventorySufficient = false;
+      } else if (inventorySufficient) {
+        const { name, price, image, _id } = product;
+
+        const singleOrderItem = {
+          amount: item.amount,
+          name,
+          price,
+          image,
+          product: _id,
+        };
+
+        // add item to order.
+        orderItems = [...orderItems, singleOrderItem];
+        subtotal += item.amount * price;
       }
-      const { name, price, image, _id } = product;
-
-      const singleOrderItem = {
-        amount: item.amount,
-        name,
-        price,
-        image,
-        product: _id,
-      };
-
-      // add item to order
-      orderItems = [...orderItems, singleOrderItem];
-      subtotal += item.amount * price;
     }
 
-    if (notEnoughInStock.length > 1) {
-      throw new OutOfStockError(notEnoughInStock);
-    } else if (notEnoughInStock.length === 1) {
-      throw new OutOfStockError(notEnoughInStock);
+    // throw error if any of the insufficient properties contains at least one item in its array.
+    if (!inventorySufficient) {
+      throw new CustomErrors.InventoryError(insufficientInventory);
     }
 
     total = tax + shippingFee + subtotal;
@@ -85,7 +105,7 @@ const orderControllers = {
     //get client secret
     const paymentIntent = await fakeStripeAPI({
       amount: total,
-      currency: "ils",
+      currency: "usd",
     });
 
     const order = new Order({
@@ -100,10 +120,11 @@ const orderControllers = {
 
     await order.save();
 
+    // update ordered products inventory.
     for (const item of orderItems) {
       const product = await Product.findById(item.product);
       product.inventory -= item.amount;
-      product.save();
+      await product.save();
     }
 
     res.status(StatusCodes.CREATED).json({
@@ -151,7 +172,7 @@ const orderControllers = {
 
   updateOrder: asyncWrapper(async (req, res, next) => {
     const { id: orderId } = req.params;
-    const { paymentIntentId } = req.body;
+    const { paymentIntentId, status } = req.body;
 
     const order = await Order.findById(orderId);
     if (!order) {
@@ -161,21 +182,90 @@ const orderControllers = {
     }
     checkPermission(req.user, order.user.toString(), orderId);
 
-    order.paymentIntentId = paymentIntentId;
-    order.status = "paid";
+    if (status === "pending") {
+      throw new CustomErrors.BadRequestError(
+        "You are not allowed to revert the status to 'pending'. You can only choose between: canceled, failed, paid or delivered"
+      );
+    }
 
+    // prevent from updating to the same status that's already set.
+    const previousStatus = order.status;
+    if (previousStatus === status) {
+      throw new CustomErrors.BadRequestError(
+        `Status is already set to --> ${status}`
+      );
+    }
+
+    // increase or decrease inventory based on order update status.
+    // make sure to keep inventory numbers as they are when updating from paid to delivered or from canceled to failed and (vise versa).
+    if (
+      (status === "canceled" && previousStatus !== "failed") ||
+      (status === "failed" && previousStatus !== "canceled")
+    ) {
+      for (const item of order.orderItems) {
+        const product = await Product.findById(item.product);
+        product.inventory += item.amount;
+        await product.save();
+      }
+    } else if (
+      (status === "paid" &&
+        previousStatus !== "delivered" &&
+        previousStatus !== "pending") ||
+      (status === "delivered" &&
+        previousStatus !== "paid" &&
+        previousStatus !== "pending")
+    ) {
+      for (const item of order.orderItems) {
+        const product = await Product.findById(item.product);
+        product.inventory -= item.amount;
+        await product.save();
+      }
+    }
+
+    order.paymentIntentId = paymentIntentId;
+    order.status = status;
     await order.save();
 
-    // update owned products
-    await OwnedProduct.updateOne(
-      { user: req.user.userId },
-      {
-        $addToSet: {
-          products: order.orderItems.map((item) => item.product),
+    if (status === "paid" || status === "delivered") {
+      await OwnedProduct.updateOne(
+        { user: req.user.userId },
+        {
+          $addToSet: {
+            products: order.orderItems.map((item) => item.product),
+          },
+        }
+      );
+    } else if (status === "canceled" || status === "failed") {
+      const alreadyOwnedProducts = await Order.find({
+        user: req.user.userId,
+        status: { $in: ["paid", "delivered"] },
+        "orderItems.product": {
+          $in: order.orderItems.map((item) => item.product),
         },
-      }
-    );
+        _id: { $ne: order._id },
+      });
 
+      console.log(alreadyOwnedProducts);
+      // Create an array of all the product ids that are already owned by the user.
+      // Convert alreadyOwnedProducts to a single array of only product IDs
+      const productIds = [];
+
+      for (const order of alreadyOwnedProducts) {
+        for (const item of order.orderItems) {
+          productIds.push(item.product);
+        }
+      }
+      await OwnedProduct.updateOne(
+        { user: req.user.userId },
+        {
+          $pull: {
+            products: {
+              $nin: productIds,
+            },
+          },
+        }
+      );
+    }
     res.status(StatusCodes.OK).json({ order });
   }),
 };
