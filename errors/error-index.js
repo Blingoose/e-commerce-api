@@ -3,6 +3,7 @@ import NotFoundError from "./not-found-error.js";
 import UnauthorizedError from "./unauthorized-error.js";
 import AccessForbiddenError from "./access-forbidden-error.js";
 import CreateCustomError from "./create-custom-error.js";
+import InventoryError from "./inventory-error.js";
 
 const CustomErrors = {
   AccessForbiddenError,
@@ -10,6 +11,7 @@ const CustomErrors = {
   NotFoundError,
   UnauthorizedError,
   CreateCustomError,
+  InventoryError,
 };
 
 export default CustomErrors;
