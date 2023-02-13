@@ -63,7 +63,7 @@ const ProductSchema = new mongoose.Schema(
       required: true,
       default: ["#000"],
       set: (val) => {
-        val = val.forEach((color, index) => (val[index] = color.toLowerCase()));
+        val.forEach((color, index) => (val[index] = color.toLowerCase()));
         return val;
       },
     },

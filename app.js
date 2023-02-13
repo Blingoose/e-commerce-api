@@ -43,7 +43,7 @@ server.use(xss());
 server.use(mongoSanitize());
 
 // application specific middleware
-server.use(morgan("tiny"));
+// server.use(morgan("tiny"));  //// for testing
 server.use(express.json());
 server.use(fileUpload({ useTempFiles: true }));
 server.use(cookieParser(process.env.JWT_SECRET));
