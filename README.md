@@ -81,6 +81,7 @@ But it will work fine with Postman.
 - `DELETE /products/:{id}`: Delete a specific product (available only to admin)
 - `POST /products/uploadImage`: Upload an image to get a source link (available only to admin)
 - `GET /products/:{id}/reviews`: Retrieve all reviews for a specific product
+- `GET /products/ownedProducts`: Retrieve all owned products of the currently logged-in user.
 
 ### Review
 
