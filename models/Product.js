@@ -62,7 +62,7 @@ const ProductSchema = new mongoose.Schema(
       type: [String],
       required: true,
       default: ["#000"],
-      set: (val) => val.toLowerCase(),
+      set: (val) => val.map((color) => color.toLowerCase()),
     },
 
     featured: {
