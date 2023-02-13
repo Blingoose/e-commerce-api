@@ -14,6 +14,7 @@ const ReviewSchema = new mongoose.Schema(
       trim: true,
       required: [true, "Please provide value"],
       validate: validatorMinMax("maxlength", 80),
+      set: (val) => val.toLowerCase(),
     },
 
     comment: {
@@ -21,6 +22,7 @@ const ReviewSchema = new mongoose.Schema(
       trim: true,
       required: [true, "Please provide value"],
       validate: validatorMinMax("maxlength", 200),
+      set: (val) => val.toLowerCase(),
     },
 
     user: {

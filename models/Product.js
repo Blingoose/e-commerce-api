@@ -8,6 +8,7 @@ const ProductSchema = new mongoose.Schema(
       trim: true,
       required: [true, "Please provide a value"],
       validate: validatorMinMax("maxlength", 100),
+      set: (val) => val.toLowerCase(),
     },
 
     price: {
@@ -20,6 +21,7 @@ const ProductSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide some info about the product"],
       validate: validatorMinMax("maxlength", 1000),
+      set: (val) => val.toLowerCase(),
     },
 
     image: {
@@ -31,7 +33,20 @@ const ProductSchema = new mongoose.Schema(
     category: {
       type: String,
       required: [true, "Please provide a value"],
-      enum: ["office", "kitchen", "bedroom"],
+      enum: {
+        values: [
+          "office",
+          "kitchen",
+          "bedroom",
+          "outdoor",
+          "storage",
+          "kids",
+          "bathroom",
+          "decor",
+          "lighting",
+        ],
+        message: "{VALUE} is not supported",
+      },
     },
 
     company: {
@@ -47,6 +62,7 @@ const ProductSchema = new mongoose.Schema(
       type: [String],
       required: true,
       default: ["#000"],
+      set: (val) => val.toLowerCase(),
     },
 
     featured: {
