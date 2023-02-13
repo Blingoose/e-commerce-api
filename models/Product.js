@@ -44,6 +44,7 @@ const ProductSchema = new mongoose.Schema(
           "bathroom",
           "decor",
           "lighting",
+          "living room",
         ],
         message: "{VALUE} is not supported",
       },
