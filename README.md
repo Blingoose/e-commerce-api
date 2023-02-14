@@ -103,18 +103,6 @@ https://documenter.getpostman.com/view/24129958/2s93CEvFpZ
 - `GET /orders/:{id}`: Retrieve details of a specific order
 - `PATCH /orders/:{id}`: Update the status of an order
 
-## User credentials to play around
-
-### Admin User Login
-
-- email: `test-admin@gmail.com`
-- password: `123456789`
-
-### Non-admin User Login
-
-- email: `ron@gmail.com`
-- password: `123456789`
-
 ## Conclusion
 
 I hope that this API will provide you with the necessary tools to build an amazing e-commerce platform. If you have any questions or concerns, please feel free to reach out.
