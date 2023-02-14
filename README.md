@@ -50,6 +50,10 @@ This can cause a response delay of up to 30 seconds for the first request that c
 Right now there is NO front-end page. When visiting the link you will get 'Route does not exist'.
 But it will work fine with Postman.
 
+### URL for published documentation
+
+https://documenter.getpostman.com/view/24129958/2s93CEvFpZ
+
 ## Endpoints
 
 ### Auth:
