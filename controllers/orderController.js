@@ -108,9 +108,9 @@ const orderControllers = {
     if (freeShipping) {
       shippingFee = 0;
     } else {
-      shippingFee = subtotal <= 65000 ? 1500 : 0;
+      shippingFee = subtotal <= 85000 ? 2500 : 0;
     }
-    tax = subtotal * 0.17;
+    tax = subtotal * 0.1;
     total = tax + shippingFee + subtotal;
     if (!total) {
       // setting total = 0 will remove the weird error message for that field if one of the required fields is missing or can't be summed up.
