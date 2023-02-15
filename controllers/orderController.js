@@ -1,5 +1,6 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
+import Review from "../models/Review.js";
 import OwnedProduct from "../models/OwnedProduct.js";
 import CustomErrors from "../errors/error-index.js";
 import asyncWrapper from "../middleware/asyncWrapper.js";
@@ -224,10 +225,6 @@ const orderControllers = {
       }
     }
 
-    order.paymentIntentId = paymentIntentId;
-    order.status = status;
-    await order.save();
-
     // Add products to the ownedProducts collection if order status is set as "paid" or "delivered" (without duplicates).
     if (status === "paid" || status === "delivered") {
       await OwnedProduct.updateOne(
@@ -292,6 +289,22 @@ const orderControllers = {
         (id) => !ownedProductIdSet.has(id.toString())
       );
 
+      // check if the user submitted reviews for the products we're about to remove from the OwnedProduct collection, if they did, throw an appropriate error.
+      const currentOrderProductsReviews = await Review.find({
+        user: req.user.userId,
+        product: { $in: productsToRemove },
+      });
+
+      if (currentOrderProductsReviews.length > 0) {
+        throw new CustomErrors.BadRequestError(
+          `You can't change order status from '${
+            order.status
+          }' to '${status}' because you've recently submitted reviews for some of the products in the current order. You must delete the reviews first. Here are all related review id's: [${currentOrderProductsReviews.map(
+            (review) => review._id
+          )}]`
+        );
+      }
+
       // Pull the products from the ownedProducts collection when the order status is set as "failed" or "canceled".
       await OwnedProduct.updateOne(
         { user: req.user.userId },
@@ -304,6 +317,10 @@ const orderControllers = {
         }
       );
     }
+
+    order.paymentIntentId = paymentIntentId;
+    order.status = status;
+    await order.save();
 
     res.status(StatusCodes.OK).json({ order });
   }),
