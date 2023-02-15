@@ -199,32 +199,6 @@ const orderControllers = {
       );
     }
 
-    // Increase or decrease inventory based on order update status.
-    // make sure to keep inventory numbers as they are when updating from paid to delivered or from canceled to failed and (vise versa).
-    if (
-      (status === "canceled" && previousStatus !== "failed") ||
-      (status === "failed" && previousStatus !== "canceled")
-    ) {
-      for (const item of order.orderItems) {
-        const product = await Product.findById(item.product);
-        product.inventory += item.amount;
-        await product.save();
-      }
-    } else if (
-      (status === "paid" &&
-        previousStatus !== "delivered" &&
-        previousStatus !== "pending") ||
-      (status === "delivered" &&
-        previousStatus !== "paid" &&
-        previousStatus !== "pending")
-    ) {
-      for (const item of order.orderItems) {
-        const product = await Product.findById(item.product);
-        product.inventory -= item.amount;
-        await product.save();
-      }
-    }
-
     // Add products to the ownedProducts collection if order status is set as "paid" or "delivered" (without duplicates).
     if (status === "paid" || status === "delivered") {
       await OwnedProduct.updateOne(
@@ -316,6 +290,32 @@ const orderControllers = {
           },
         }
       );
+    }
+
+    // Increase or decrease inventory based on order update status.
+    // make sure to keep inventory numbers as they are when updating from paid to delivered or from canceled to failed and (vise versa).
+    if (
+      (status === "canceled" && previousStatus !== "failed") ||
+      (status === "failed" && previousStatus !== "canceled")
+    ) {
+      for (const item of order.orderItems) {
+        const product = await Product.findById(item.product);
+        product.inventory += item.amount;
+        await product.save();
+      }
+    } else if (
+      (status === "paid" &&
+        previousStatus !== "delivered" &&
+        previousStatus !== "pending") ||
+      (status === "delivered" &&
+        previousStatus !== "paid" &&
+        previousStatus !== "pending")
+    ) {
+      for (const item of order.orderItems) {
+        const product = await Product.findById(item.product);
+        product.inventory -= item.amount;
+        await product.save();
+      }
     }
 
     order.paymentIntentId = paymentIntentId;
