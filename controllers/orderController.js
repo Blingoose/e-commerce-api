@@ -29,12 +29,15 @@ const fakeStripeAPI = async ({ amount, currency }) => {
 
 const orderControllers = {
   createOrder: asyncWrapper(async (req, res, next) => {
-    const { cartItems, tax, shippingFee } = req.body;
+    const { cartItems } = req.body;
 
     if (!cartItems || cartItems.length < 1) {
       throw new CustomErrors.BadRequestError("No cart items provided");
     }
 
+    let tax = 0;
+    let freeShipping = true;
+    let shippingFee = 0;
     let orderItems = [];
     let subtotal = 0;
     let total = 0;
@@ -87,6 +90,10 @@ const orderControllers = {
           product: _id,
         };
 
+        if (product.freeShipping !== true) {
+          freeShipping = false;
+        }
+
         // add item to order.
         orderItems = [...orderItems, singleOrderItem];
         subtotal += item.amount * price;
@@ -98,6 +105,12 @@ const orderControllers = {
       throw new CustomErrors.InventoryError(insufficientInventory);
     }
 
+    if (freeShipping) {
+      shippingFee = 0;
+    } else {
+      shippingFee = subtotal <= 65000 ? 1500 : 0;
+    }
+    tax = subtotal * 0.17;
     total = tax + shippingFee + subtotal;
     if (!total) {
       // setting total = 0 will remove the weird error message for that field if one of the required fields is missing or can't be summed up.
