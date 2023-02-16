@@ -306,7 +306,7 @@ const orderControllers = {
     }
 
     // Increase or decrease inventory based on order update status.
-    // make sure to keep inventory numbers as they are when updating from paid to delivered or from canceled to failed and (vise versa).
+    // make sure to keep inventory numbers as they are when updating from paid to delivered or from canceled to failed and (vice versa).
     if (
       (status === "canceled" && previousStatus !== "failed") ||
       (status === "failed" && previousStatus !== "canceled")
