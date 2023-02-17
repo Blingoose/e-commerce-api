@@ -140,6 +140,8 @@ To retrieve only the specified fields of the product objects in the response, us
 
 To filter the list of products based on certain conditions, use the following:
 
+- `GET /products?company={ikea|marcos|liddy}`:
+  Retrieves a list of products by company.
 - `GET /products?featured={true|false}`:
   Retrieves a list of featured or non-featured products.
 - `GET /products?freeShipping={true|false}`:
@@ -149,6 +151,10 @@ To filter the list of products based on certain conditions, use the following:
 
 ```
 https://e-commerce-api-jxc4.onrender.com/api/v1/products?page=3
+```
+
+```
+https://e-commerce-api-jxc4.onrender.com/api/v1/products?company=marcos&sort=price&sortOrder=desc
 ```
 
 ```
