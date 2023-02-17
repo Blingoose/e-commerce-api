@@ -8,7 +8,6 @@ import userRouter from "./routes/userRoutes.js";
 import reviewRouter from "./routes/reviewRoutes.js";
 import productRouter from "./routes/productRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
-import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
 import { rateLimit } from "express-rate-limit";
@@ -18,6 +17,7 @@ import mongoSanitize from "express-mongo-sanitize";
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 import helmet from "helmet";
+// import morgan from "morgan";
 
 dotenv.config();
 cloudinary.config({
