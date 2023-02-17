@@ -91,8 +91,8 @@ const productControllers = {
         }, {});
         result = result.sort(sortObj);
       }
-      // } else {
-      //   result = result.sort("price");
+    } else {
+      result = result.sort("price");
     }
 
     // filter the result response by fields.
