@@ -31,9 +31,13 @@ const productControllers = {
       numericFilters,
     } = req.query;
 
-    queryObject.featured = featured === "true" ? true : false;
+    if (featured) {
+      queryObject.featured = featured === "true" ? true : false;
+    }
 
-    queryObject.freeShipping = freeShipping === "true" ? true : false;
+    if (freeShipping) {
+      queryObject.freeShipping = freeShipping === "true" ? true : false;
+    }
 
     if (company) {
       queryObject.company = company;
@@ -87,8 +91,8 @@ const productControllers = {
         }, {});
         result = result.sort(sortObj);
       }
-    } else {
-      result = result.sort("price");
+      // } else {
+      //   result = result.sort("price");
     }
 
     // filter the result response by fields.
