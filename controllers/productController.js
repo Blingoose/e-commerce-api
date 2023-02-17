@@ -63,7 +63,7 @@ const productControllers = {
       let filters = numericFilters.split(",").reduce((acc, filter) => {
         // split every array item by the matching word boundaries, "price>20" will become ["price", ">", "20"]
         const [field, operator, value] = filter.split(regEx);
-        if (["price", "averageRating"].includes(field)) {
+        if (["price", "averageRating", "numOfReviews"].includes(field)) {
           acc[field] = { [operatorMap[operator]]: Number(value) };
         }
 
@@ -76,8 +76,10 @@ const productControllers = {
     let result = Product.find(queryObject);
 
     let sortObj = {};
+    // sorting functionality that accepts more than one query parameter to sort by, separated by a comma.
     if (sort) {
       if (sort.split(",").length === 1) {
+        // if sortOrder=desc query param is added, then sort by descending order. Works only if sort query param exists. Example: ?sort=price&sortOrder=desc
         sortObj[sort] = sortOrder === "desc" ? -1 : 1;
         result = result.sort(sortObj);
       } else {
@@ -93,11 +95,13 @@ const productControllers = {
       result = result.sort("price");
     }
 
+    // filter the result response by fields.
     if (fields) {
       const fieldsList = fields.split(",").join(" ");
       result = result.select(fieldsList);
     }
 
+    // pagination. allow maximum 10 items per page.
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const skip = (page - 1) * limit;
