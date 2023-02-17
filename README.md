@@ -95,7 +95,7 @@ https://documenter.getpostman.com/view/24129958/2s93CEvFpZ
 ### Product
 
 - `POST /products`: Create a new product (available only to admin)
-- `GET /products`: Retrieve a list of all products (10 products per page, navigate by adding ?page={number} to the url)
+- `GET /products`: Get a list of all products, 10 products per page, navigate by adding ?page={number} to URL.
 - `GET /products/:{id}`: Retrieve details of a specific product
 - `PATCH /products/:{id}`: Update details of a specific product (available only to admin)
 - `DELETE /products/:{id}`: Delete a specific product (available only to admin)
