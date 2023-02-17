@@ -80,7 +80,7 @@ const productControllers = {
       if (sort.split(",").length === 1) {
         sortObj[sort] = sortOrder === "desc" ? -1 : 1;
         result = result.sort(sortObj);
-      } else if (sort.split(",").length > 1) {
+      } else {
         const sortArr = sort.split(",");
         sortObj = sortArr.reduce((acc, field) => {
           acc[field] = sortOrder === "desc" ? -1 : 1;
