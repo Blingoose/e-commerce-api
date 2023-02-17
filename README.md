@@ -114,7 +114,7 @@ To search for products based on a keyword in their name or description, use the 
 
 #### Sorting
 
-To sort the list of products based on a specific field in ascending or descending order, use the following endpoints:
+To sort the list of products based on a specific field in ascending or descending order, use the following:
 
 - `GET /products?sort={field}`:
   Retrieves a list of products sorted by a specific field (e.g. price, company, etc...) in ascending order.
@@ -124,21 +124,21 @@ To sort the list of products based on a specific field in ascending or descendin
 #### Numeric Filters
 
 To filter the list of products based on a numeric condition (< | <= | = | >= | >),
-which can be used with the following fields: price, averageRating, numOfReviews, use:
+which can be used with only with the next fields: ##price##, ##averageRating##, ##numOfReviews##, use:
 
 - `GET /products?numericFilters={field}{operator}{value}`:
   Retrieves a list of products that match a numeric condition (e.g. price > 50000 or averageRating <= 35000).
 
 #### Field Selection
 
-To retrieve only the specified fields of the product objects in the response, use the following endpoint:
+To retrieve only the specified fields of the product objects in the response, use the following:
 
 - `GET /products?fields={field1},{field2},{field3},...`:
   Retrieves only the specified fields of the product objects in the response.
 
 #### Other Filters
 
-To filter the list of products based on certain conditions, use the following endpoints:
+To filter the list of products based on certain conditions, use the following:
 
 - `GET /products?featured={true|false}`:
   Retrieves a list of featured or non-featured products.
