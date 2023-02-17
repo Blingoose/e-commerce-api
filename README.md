@@ -124,7 +124,7 @@ To sort the list of products based on a specific field in ascending or descendin
 #### Numeric Filters
 
 To filter the list of products based on a numeric condition (< | <= | = | >= | >),
-which can be used with only with the next fields: <b>price</b>, <b>averageRating</b>, <b>numOfReviews</b>, use:
+which can be used with only with the next fields: <i>price</i>, <i>averageRating</i>, <i>numOfReviews</i>, use:
 
 - `GET /products?numericFilters={field}{operator}{value}`:
   Retrieves a list of products that match a numeric condition (e.g. price > 50000 or averageRating <= 35000).
