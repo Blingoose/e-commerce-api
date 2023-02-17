@@ -31,13 +31,9 @@ const productControllers = {
       numericFilters,
     } = req.query;
 
-    if (featured === "true") {
-      queryObject.featured = true;
-    }
+    queryObject.featured = featured === "true" ? true : false;
 
-    if (freeShipping === "true") {
-      queryObject.freeShipping = true;
-    }
+    queryObject.freeShipping = freeShipping === "true" ? true : false;
 
     if (company) {
       queryObject.company = company;
