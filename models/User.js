@@ -91,19 +91,19 @@ UserSchema.pre("save", async function () {
   if (this.isModified("username") && !this.isNew) {
     const previousUsername = (await User.findById(this._id)).username;
 
-    // Update followers array
+    // update followers array
     await User.updateMany(
       { followers: { $in: [previousUsername] } },
       { $set: { "followers.$": this.username } }
     );
 
-    // Update following array
+    // update following array
     await User.updateMany(
       { following: { $in: [previousUsername] } },
       { $set: { "following.$": this.username } }
     );
 
-    //When user changes his username, update all associated reviews posted by him, with that new username.
+    //when user changes his username, update all associated reviews posted by him, with that new username.
     await this.model("Review").updateMany(
       { username: previousUsername },
       { $set: { username: this.username } }
@@ -113,18 +113,18 @@ UserSchema.pre("save", async function () {
 
 // update numOfReviews and averageRating for each product that was previously reviewed by the deleted user, since all associated reviews are deleted too.
 UserSchema.pre("remove", async function () {
-  // Remove OwnedProduct document when the user deletes himself from DB.
+  // remove OwnedProduct document when the user deletes himself from DB.
   await this.model("OwnedProduct").deleteOne({ user: this._id });
 
-  // Find all reviews posted by the deleted user
+  // find all reviews posted by the deleted user
   const reviews = await this.model("Review")
     .find({ user: this._id })
     .sort({ product: 1 });
 
-  //Remove all reviews that are associated with that user to be deleted.
+  // remove all reviews that are associated with that user to be deleted.
   await this.model("Review").deleteMany({ username: this.username });
 
-  // Group the reviews by product and calculate the average rating and number of reviews.
+  // group the reviews by product and calculate the average rating and number of reviews.
   const aggregateResults = await this.model("Review").aggregate([
     {
       $match: {
@@ -161,7 +161,7 @@ UserSchema.pre("remove", async function () {
     };
   });
 
-  // If some of the bulk writes fail, it'll be retried up to 5 times.
+  // if some of the bulk writes fail, it'll be retried up to 5 times.
   let success = false;
   let retries = 0;
   const maxRetries = 5;
@@ -181,7 +181,7 @@ UserSchema.pre("remove", async function () {
         `Write failed, retrying in ${retryInterval}ms (${retries}/${maxRetries})`
       );
 
-      //retry again ONLY after the timeout has ended.
+      // retry again ONLY after the timeout has ended.
       await new Promise((resolve) => setTimeout(resolve, retryInterval));
     }
   }
@@ -193,7 +193,7 @@ UserSchema.pre("remove", async function () {
     );
   }
 
-  // Remove the deleted username from all associated followers & following users &&
+  // remove the deleted username from all associated followers & following users &&
   // update the countFollowers & countFollowing for all users who were associated with the deleted username.
   const deletedUsername = this.username;
 
@@ -218,7 +218,7 @@ UserSchema.pre("remove", async function () {
     },
   ];
 
-  //reset values
+  //reset values.
   success = false;
   retries = 0;
 

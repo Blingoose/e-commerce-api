@@ -212,7 +212,7 @@ const orderControllers = {
       );
     }
 
-    // Add products to the ownedProducts collection if order status is set as "paid" or "delivered" (without duplicates).
+    // add products to the ownedProducts collection if order status is set as "paid" or "delivered" (without duplicates).
     if (status === "paid" || status === "delivered") {
       await OwnedProduct.updateOne(
         { user: req.user.userId },
@@ -223,11 +223,11 @@ const orderControllers = {
         }
       );
     } else if (status === "canceled" || status === "failed") {
-      // If the user sets the order status to canceled right after it was set to "paid" or "delivered",
+      // if the user sets the order status to canceled right after it was set to "paid" or "delivered",
       // we want to remove order items from the ownedProducts collection, but only if they weren't paid for in previous orders.
       const userObjectId = mongoose.Types.ObjectId(req.user.userId);
 
-      // Create an array of all product ids owned by the user, which are associated with current order products,
+      // create an array of all product ids owned by the user, which are associated with current order products,
       // with the status set as "paid" or "delivered" (current order excluded).
       const alreadyOwnedProducts = await Order.aggregate([
         {
@@ -241,19 +241,19 @@ const orderControllers = {
           },
         },
         {
-          // The $unwind stage deconstructs an array field from the input documents to output a document for each element.
-          // So in our case, the $unwind stage will turn each order into multiple documents, one for each item in the orderItems array.
+          // the $unwind stage deconstructs an array field from the input documents to output a document for each element.
+          // so in our case, the $unwind stage will turn each order into multiple documents, one for each item in the orderItems array.
           $unwind: "$orderItems",
         },
         {
-          // Create a products property in the aggregation results array, and set its value to an array of product id values (without duplicates).
+          // create a products property in the aggregation results array, and set its value to an array of product id values (without duplicates).
           $group: {
             _id: null,
             products: { $addToSet: "$orderItems.product" },
           },
         },
         {
-          // Remove the id field from the aggregation results, keep just the products property.
+          // remove the id field from the aggregation results, keep just the products property.
           $project: {
             _id: 0,
             products: 1,
@@ -261,17 +261,17 @@ const orderControllers = {
         },
       ]);
 
-      // Create a set with all results from the aggregation pipeline, if none found, return an empty set.
+      // create a set with all results from the aggregation pipeline, if none found, return an empty set.
       const ownedProductIdSet = alreadyOwnedProducts.length
         ? new Set(alreadyOwnedProducts[0].products.map((id) => id.toString()))
         : new Set();
 
-      // Create an array of all products in the current order.
+      // create an array of all products in the current order.
       const currentOrderProductIds = order.orderItems.map(
         (item) => item.product
       );
 
-      // From the current order products, get only the products that don't match the already owned products.
+      // from the current order products, get only the products that don't match the already owned products.
       const productsToRemove = currentOrderProductIds.filter(
         (id) => !ownedProductIdSet.has(id.toString())
       );
@@ -292,7 +292,7 @@ const orderControllers = {
         );
       }
 
-      // Pull the products from the ownedProducts collection when the order status is set as "failed" or "canceled".
+      // pull the products from the ownedProducts collection when the order status is set as "failed" or "canceled".
       await OwnedProduct.updateOne(
         { user: req.user.userId },
         {
@@ -305,7 +305,7 @@ const orderControllers = {
       );
     }
 
-    // Increase or decrease inventory based on order update status.
+    // increase or decrease inventory based on order update status.
     // make sure to keep inventory numbers as they are when updating from paid to delivered or from canceled to failed and (vice versa).
     if (
       (status === "canceled" && previousStatus !== "failed") ||
