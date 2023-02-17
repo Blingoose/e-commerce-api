@@ -140,6 +140,10 @@ To filter the list of products based on certain conditions, use the following en
 #### Examples for advanced query options:
 
 ```
+https://e-commerce-api-jxc4.onrender.com/api/v1/products?page=3
+```
+
+```
 https://e-commerce-api-jxc4.onrender.com/api/v1/products?search=chair
 ```
 
