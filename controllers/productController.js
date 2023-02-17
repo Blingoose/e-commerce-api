@@ -108,7 +108,7 @@ const productControllers = {
 
     result = result.skip(skip).limit(limit);
 
-    const products = await result;
+    const products = await result.select("-user");
 
     res.status(StatusCodes.OK).json({
       products,
@@ -118,7 +118,9 @@ const productControllers = {
 
   getSingleProduct: asyncWrapper(async (req, res, next) => {
     const { id: productId } = req.params;
-    const product = await Product.findById(productId).populate("reviews");
+    const product = await Product.findById(productId)
+      .populate("reviews")
+      .select("-user");
 
     if (!product) {
       throw new CustomErrors.NotFoundError(
