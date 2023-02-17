@@ -107,35 +107,43 @@ https://documenter.getpostman.com/view/24129958/2s93CEvFpZ
 
 #### Search
 
-To search for products based on a keyword in their name or description, use the following endpoint:
+To search for products based on a keyword in their name or description, use the following:
 
-- `GET /products?search={keyword}`: Retrieves a list of products that match the keyword in their name or description.
+- `GET /products?search={keyword}`:
+  Retrieves a list of products that match the keyword in their name.
 
 #### Sorting
 
 To sort the list of products based on a specific field in ascending or descending order, use the following endpoints:
 
-- `GET /products?sort={field}`: Retrieves a list of products sorted by a specific field (e.g. price, averageRating, company) in ascending order.
-- `GET /products?sort={field}&sortOrder={asc|desc}`: Retrieves a list of products sorted by a specific field (e.g. price, averageRating, company) in ascending or descending order.
+- `GET /products?sort={field}`:
+  Retrieves a list of products sorted by a specific field (e.g. price, company, etc...) in ascending order.
+- `GET /products?sort={field}&sortOrder={asc|desc}`:
+  Retrieves a list of products sorted by a specific field (e.g. price, company, etc...) in ascending or descending order.
 
 #### Numeric Filters
 
-To filter the list of products based on a numeric condition for the above fields(price, averageRating, numOfReviews), use the following endpoint:
+To filter the list of products based on a numeric condition (< | <= | = | >= | >),
+which can be used with the following fields: price, averageRating, numOfReviews, use:
 
-- `GET /products?numericFilters={field}{operator}{value}`: Retrieves a list of products that match a numeric condition (e.g. price > 50000 or averageRating <= 35000).
+- `GET /products?numericFilters={field}{operator}{value}`:
+  Retrieves a list of products that match a numeric condition (e.g. price > 50000 or averageRating <= 35000).
 
 #### Field Selection
 
 To retrieve only the specified fields of the product objects in the response, use the following endpoint:
 
-- `GET /products?fields={field1},{field2},{field3},...`: Retrieves only the specified fields of the product objects in the response.
+- `GET /products?fields={field1},{field2},{field3},...`:
+  Retrieves only the specified fields of the product objects in the response.
 
 #### Other Filters
 
 To filter the list of products based on certain conditions, use the following endpoints:
 
-- `GET /products?featured={true|false}`: Retrieves a list of featured or non-featured products.
-- `GET /products?freeShipping={true|false}`: Retrieves a list of products that have free shipping or not.
+- `GET /products?featured={true|false}`:
+  Retrieves a list of featured or non-featured products.
+- `GET /products?freeShipping={true|false}`:
+  Retrieves a list of products that have free shipping or not.
 
 #### Examples for advanced query options:
 
