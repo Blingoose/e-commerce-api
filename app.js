@@ -30,6 +30,7 @@ cloudinary.config({
 });
 
 const server = express();
+server.use("/api/v1", express.static(__dirname + "/public"));
 
 server.set("trust proxy", 1);
 
@@ -42,7 +43,6 @@ server.use(
 );
 
 // home page
-server.use("/api/v1", express.static(__dirname + "/public"));
 
 server.use(helmet());
 server.use(cors());
