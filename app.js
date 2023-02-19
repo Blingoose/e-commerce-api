@@ -37,6 +37,8 @@ server.use(
     max: 60,
   })
 );
+
+server.use(express.static("./public"));
 server.use(helmet());
 server.use(cors());
 server.use(xss());
@@ -47,11 +49,10 @@ server.use(mongoSanitize());
 server.use(express.json());
 server.use(fileUpload({ useTempFiles: true }));
 server.use(cookieParser(process.env.JWT_SECRET));
-server.use(express.static("./public"));
 
-server.get("/", (req, res) => {
-  res.send("Test the main route --->  /api/v1/auth");
-});
+// server.get("/", (req, res) => {
+//   res.send("Test the main route --->  /api/v1/auth");
+// });
 
 //base route
 const baseRoute = "/api/v1";
