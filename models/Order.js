@@ -26,6 +26,13 @@ const SingleOrderItemSchema = new mongoose.Schema({
   amount: {
     type: Number,
     required: true,
+
+    validate: {
+      validator: function (value) {
+        return Number.isInteger(value) && value > 0;
+      },
+      message: "Amount must be a positive integer",
+    },
   },
 });
 
