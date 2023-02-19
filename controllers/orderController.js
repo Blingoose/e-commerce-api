@@ -54,6 +54,12 @@ const orderControllers = {
         );
       }
 
+      if (!Number.isInteger(item.amount) || item.amount < 1) {
+        throw new CustomErrors.BadRequestError(
+          "Amount must be a positive integer"
+        );
+      }
+
       // check if cartItems in req.body contain the same product more than once.
       if (productIds.has(item.product)) {
         throw new CustomErrors.BadRequestError(
