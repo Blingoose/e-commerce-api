@@ -44,18 +44,14 @@ server.use(cors());
 server.use(xss());
 server.use(mongoSanitize());
 
-// home page
-server.use("/api/v1", express.static(__dirname + "/public"));
-
 // application specific middleware
 // server.use(morgan("tiny"));  //// for testing
 server.use(express.json());
 server.use(fileUpload({ useTempFiles: true }));
 server.use(cookieParser(process.env.JWT_SECRET));
 
-// server.get("/", (req, res) => {
-//   res.send("Test the main route --->  /api/v1/auth");
-// });
+// home page
+server.use("/api/v1", express.static(__dirname + "/public"));
 
 //base route
 const baseRoute = "/api/v1";
