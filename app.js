@@ -30,8 +30,6 @@ cloudinary.config({
 });
 
 const server = express();
-server.use("/api/v1", express.static(__dirname + "/public"));
-
 server.set("trust proxy", 1);
 
 // for security purposes
@@ -41,13 +39,13 @@ server.use(
     max: 60,
   })
 );
-
-// home page
-
 server.use(helmet());
 server.use(cors());
 server.use(xss());
 server.use(mongoSanitize());
+
+// home page
+server.use("/api/v1", express.static(__dirname + "/public"));
 
 // application specific middleware
 // server.use(morgan("tiny"));  //// for testing
