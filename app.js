@@ -1,4 +1,5 @@
 import http from "http";
+import { fileURLToPath } from "url";
 import express from "express";
 import connectDB from "./db/connectDB.js";
 import errorHandlerMiddleware from "./middleware/error-handler-middleware.js";
@@ -19,6 +20,8 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 // import morgan from "morgan";
 
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
+
 dotenv.config();
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -38,7 +41,9 @@ server.use(
   })
 );
 
-server.use(express.static("./public"));
+// home page
+server.use("/api/v1", express.static(__dirname + "/public"));
+
 server.use(helmet());
 server.use(cors());
 server.use(xss());
