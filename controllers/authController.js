@@ -4,6 +4,7 @@ import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
 import validator from "validator";
+import crypto from "crypto";
 
 const authControllers = {
   register: asyncWrapper(async (req, res, next) => {
@@ -13,12 +14,65 @@ const authControllers = {
     const isFirstAccount = (await User.countDocuments({})) === 0;
     const role = isFirstAccount ? "admin" : "user";
 
-    const user = await User.create({ name, username, email, password, role });
-    const tokenUser = jwtHandler.createTokenUser(user);
+    const verificationToken = crypto.randomBytes(40).toString("hex");
+    const user = await User.create({
+      name,
+      username,
+      email,
+      password,
+      role,
+      verificationToken,
+    });
 
-    jwtHandler.attachCookiesToResponse({ res, user: tokenUser });
+    res.status(StatusCodes.CREATED).json({
+      msg: "Success! Please check your email to verify accout",
+      verificationToken: user.verificationToken,
+    });
+    // const tokenUser = jwtHandler.createTokenUser(user);
 
-    res.status(StatusCodes.CREATED).json({ user: tokenUser });
+    // jwtHandler.attachCookiesToResponse({ res, user: tokenUser });
+
+    // res.status(StatusCodes.CREATED).json({ user: tokenUser });
+  }),
+
+  verifyEmail: asyncWrapper(async (req, res, next) => {
+    const { verificationToken, email } = req.body;
+
+    if (!email) {
+      throw new CustomErrors.UnauthorizedError("Must provide an email");
+    }
+
+    if (!validator.isEmail(email)) {
+      throw new CustomErrors.UnauthorizedError("Must provide a valid email");
+    }
+
+    if (!verificationToken) {
+      throw new CustomErrors.UnauthorizedError(
+        "Must provide a verification token. Check your email"
+      );
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      throw new CustomErrors.UnauthorizedError("Verification failed");
+    }
+
+    if (!user.isVerified && user.verificationToken !== verificationToken) {
+      throw new CustomErrors.UnauthorizedError("Verification failed");
+    } else if (user.isVerified === true) {
+      throw new CustomErrors.BadRequestError("Account is already verified");
+    }
+
+    user.isVerified = true;
+    user.verified = Date.now();
+    user.verificationToken = "";
+
+    await user.save();
+
+    res.status(StatusCodes.OK).json({
+      msg: "You've successfully verified the account",
+    });
   }),
 
   login: asyncWrapper(async (req, res, next) => {
@@ -36,6 +90,12 @@ const authControllers = {
 
     if (!user) {
       throw new CustomErrors.UnauthorizedError(`User ${email} doesn't exist`);
+    }
+
+    if (!user.isVerified) {
+      throw new CustomErrors.UnauthorizedError(
+        "Account isn't verified. Check your email for verification."
+      );
     }
 
     const isPasswordCorrect = await user.comparePassword(password);
