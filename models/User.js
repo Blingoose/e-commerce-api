@@ -74,6 +74,15 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+
+  verificationToken: String,
+
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+
+  verified: Date,
 });
 
 UserSchema.methods.comparePassword = async function (candidatePassword) {
