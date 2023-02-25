@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account verification</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        padding: 0;
+      }
+
+      html {
+        width: 100%;
+        height: 100%;
+      }
+
+      body {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        background-color: rgb(236, 152, 42);
+      }
+
+      .center {
+        width: 100%;
+        height: 50%;
+        margin: 0;
+        position: absolute;
+        top: 30%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-family: "Trebuchet MS", Helvetica, sans-serif;
+        text-align: center;
+      }
+
+      a {
+        text-decoration: none;
+        color: rgb(0, 0, 0);
+      }
+
+      a:visited {
+        color: rgb(0, 0, 0);
+      }
+
+      h1 {
+        margin: 0 40px;
+        color: rgb(106, 62, 136);
+      }
+
+      .token {
+        color: rgb(91, 49, 91);
+      }
+
+      @media screen and (max-width: 767px) {
+        h1 {
+          font-size: 35px;
+        }
+
+        p {
+          font-size: 18px;
+        }
+      }
+
+      @media screen and (min-width: 768px) and (max-width: 1023px) {
+        h1 {
+          font-size: 40px;
+        }
+
+        p {
+          font-size: 25px;
+        }
+      }
+
+      @media screen and (min-width: 1024px) {
+        h1 {
+          font-size: 60px;
+        }
+
+        p {
+          font-size: 30px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="center">
+      <h1>Account verification</h1>
+      <a href="https://documenter.getpostman.com/view/24129958/2s93CEvFpZ">
+        <p>Documentation</p>
+      </a>
+     
+      <form action="https://e-commerce-api-jxc4.onrender.com/api/v1/auth/verify-email" method="POST">
+        <input type="text" name="email" value="{{email}}" />
+        <input type="text" name="verificationToken" value="{{verificationToken}}" />
+        <button type="button" id="submit-btn">Verify Email</button>
+      <script>
+        const form = document.querySelector("form");
+        const submitBtn = document.getElementById("submit-btn");
+        submitBtn.addEventListener("click", (event) => {
+          event.preventDefault();
+          const email = form.elements.email.value;
+          const verificationToken = form.elements.verificationToken.value;
+          fetch("/api/v1/auth/verify-email", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, verificationToken }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        });
+      </script>
+    </div>
+  </body>
+</html>
