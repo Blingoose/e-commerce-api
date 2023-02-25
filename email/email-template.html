@@ -91,34 +91,42 @@
       <a href="https://documenter.getpostman.com/view/24129958/2s93CEvFpZ">
         <p>Documentation</p>
       </a>
-     
+
       <form id="verify-email-form">
         <input type="text" name="email" value="{{email}}" />
-        <input type="text" name="verificationToken" value="{{verificationToken}}" />
+        <input
+          type="text"
+          name="verificationToken"
+          value="{{verificationToken}}"
+        />
         <button type="button" id="submit-btn">Verify Email</button>
-      <script>
-        const form = document.getElementById("verify-email-form");
-        const submitBtn = document.getElementById("submit-btn");
-        submitBtn.addEventListener("click", (event) => {
-          event.preventDefault();
-          const email = form.elements.email.value;
-          const verificationToken = form.elements.verificationToken.value;
-          fetch("https://e-commerce-api-jxc4.onrender.com/api/v1/auth/verify-email", {
+      </form>
+    </div>
+    <script>
+      const form = document.getElementById("verify-email-form");
+      const submitBtn = document.getElementById("submit-btn");
+      submitBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        const email = form.elements.email.value;
+        const verificationToken = form.elements.verificationToken.value;
+        fetch(
+          "https://e-commerce-api-jxc4.onrender.com/api/v1/auth/verify-email",
+          {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ email, verificationToken }),
+          }
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
           })
-            .then((response) => response.json())
-            .then((data) => {
-              console.log(data);
-            })
-            .catch((error) => {
-              console.error(error);
-            });
-        });
-      </script>
-    </div>
+          .catch((error) => {
+            console.error(error);
+          });
+      });
+    </script>
   </body>
 </html>
