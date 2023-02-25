@@ -5,6 +5,12 @@ import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
 import validator from "validator";
 import crypto from "crypto";
+import sgMail from "@sendgrid/mail";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 const authControllers = {
   register: asyncWrapper(async (req, res, next) => {
@@ -24,10 +30,34 @@ const authControllers = {
       verificationToken,
     });
 
+    const emailTemplate = fs.readFileSync(
+      path.resolve(__dirname, "../email/email-template.html"),
+      "utf-8"
+    );
+
+    let emailBody = emailTemplate.replace(
+      "{{verificationToken}}",
+      verificationToken
+    );
+
+    emailBody = emailBody.replace("{{email}}", email);
+
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    const msg = {
+      to: `${email}`,
+      from: "andy.katov@blingoose.net",
+      subject: "E-commerce API account verification",
+      html: emailBody,
+      // text: `Hi, thank you for registering to E-commerce API. To verify your account use this {{verificationToken}}:
+      // ${verificationToken}`,
+    };
+
+    await sgMail.send(msg);
+
     res.status(StatusCodes.CREATED).json({
-      msg: "Success! Please check your email to verify accout",
-      verificationToken: user.verificationToken,
+      msg: "Success! Please check your email to verify accout, if you're not seeing the email, please check your spam folder!",
     });
+
     // const tokenUser = jwtHandler.createTokenUser(user);
 
     // jwtHandler.attachCookiesToResponse({ res, user: tokenUser });
@@ -37,6 +67,8 @@ const authControllers = {
 
   verifyEmail: asyncWrapper(async (req, res, next) => {
     const { verificationToken, email } = req.body;
+
+    console.log(verificationToken, email);
 
     if (!email) {
       throw new CustomErrors.UnauthorizedError("Must provide an email");
