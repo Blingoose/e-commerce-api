@@ -48,8 +48,6 @@ const authControllers = {
       from: "andy.katov@blingoose.net",
       subject: "E-commerce API account verification",
       html: emailBody,
-      // text: `Hi, thank you for registering to E-commerce API. To verify your account use this {{verificationToken}}:
-      // ${verificationToken}`,
     };
 
     await sgMail.send(msg);
@@ -57,18 +55,10 @@ const authControllers = {
     res.status(StatusCodes.CREATED).json({
       msg: "Success! Please check your email to verify accout, if you're not seeing the email, please check your spam folder!",
     });
-
-    // const tokenUser = jwtHandler.createTokenUser(user);
-
-    // jwtHandler.attachCookiesToResponse({ res, user: tokenUser });
-
-    // res.status(StatusCodes.CREATED).json({ user: tokenUser });
   }),
 
   verifyEmail: asyncWrapper(async (req, res, next) => {
     const { verificationToken, email } = req.body;
-
-    console.log(verificationToken, email);
 
     if (!email) {
       throw new CustomErrors.UnauthorizedError("Must provide an email");
