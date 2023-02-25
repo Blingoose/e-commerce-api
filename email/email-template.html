@@ -56,11 +56,11 @@
 
       @media screen and (max-width: 767px) {
         h1 {
-          font-size: 35px;
+          font-size: 32spx;
         }
 
         p {
-          font-size: 18px;
+          font-size: 15px;
         }
       }
 
@@ -70,17 +70,17 @@
         }
 
         p {
-          font-size: 25px;
+          font-size: 18px;
         }
       }
 
       @media screen and (min-width: 1024px) {
         h1 {
-          font-size: 60px;
+          font-size: 58px;
         }
 
         p {
-          font-size: 30px;
+          font-size: 22px;
         }
       }
     </style>
@@ -88,45 +88,18 @@
   <body>
     <div class="center">
       <h1>Account verification</h1>
-      <a href="https://documenter.getpostman.com/view/24129958/2s93CEvFpZ">
-        <p>Documentation</p>
-      </a>
-
-      <form id="verify-email-form">
-        <input type="text" name="email" value="{{email}}" />
-        <input
-          type="text"
-          name="verificationToken"
-          value="{{verificationToken}}"
-        />
-        <button type="button" id="submit-btn">Verify Email</button>
-      </form>
+      <p>
+        <a href="https://documenter.getpostman.com/view/24129958/2s93CEvFpZ">
+          Documentation
+        </a>
+      </p>
+      <p class="token">
+        Thank you for using e-commerce REST API.<br />
+        To verify your account, copy the following credentials to verify-email
+        route in postman.<br /><br />
+        email: {{email}} <br />
+        verificationToken: {{verificationToken}}
+      </p>
     </div>
-    <script>
-      const form = document.getElementById("verify-email-form");
-      const submitBtn = document.getElementById("submit-btn");
-      submitBtn.addEventListener("click", (event) => {
-        event.preventDefault();
-        const email = form.elements.email.value;
-        const verificationToken = form.elements.verificationToken.value;
-        fetch(
-          "https://e-commerce-api-jxc4.onrender.com/api/v1/auth/verify-email",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email, verificationToken }),
-          }
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            console.log(data);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      });
-    </script>
   </body>
 </html>
