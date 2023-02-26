@@ -80,23 +80,32 @@ const authControllers = {
       throw new CustomErrors.UnauthorizedError("Verification failed");
     }
 
-    if (!user.isVerified && user.verificationToken !== verificationToken) {
-      throw new CustomErrors.UnauthorizedError("Verification failed");
-    } else if (user.isVerified === true) {
-      throw new CustomErrors.BadRequestError("Account is already verified");
-    }
+    // if (!user.isVerified && user.verificationToken !== verificationToken) {
+    //   throw new CustomErrors.UnauthorizedError("Verification failed");
+    // } else if (user.isVerified === true) {
+    //   throw new CustomErrors.BadRequestError("Account is already verified");
+    // }
 
     if (user.isVerified) {
-      sendResponse(req, res, { isVerified: true });
+      sendResponse(
+        req,
+        res,
+        { isVerified: user.isVerified },
+        { msg: "Account is already Verified!" }
+      );
     } else if (user.verificationToken === verificationToken) {
       user.isVerified = true;
       user.verified = Date.now();
       user.verificationToken = "";
       await user.save();
-
-      sendResponse(req, res, {
-        msg: "You've successfully verified the account",
-      });
+      sendResponse(
+        req,
+        res,
+        { isVerified: user.isVerified },
+        {
+          msg: "You've successfully verified the account",
+        }
+      );
     } else {
       throw new CustomErrors.UnauthorizedError("Verification failed");
     }
