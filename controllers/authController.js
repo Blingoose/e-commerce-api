@@ -74,10 +74,14 @@ const authControllers = {
       "utf-8"
     );
 
-    let emailBody = emailTemplate.replaceAll(
+    let emailBody = emailTemplate.replace(
       "{{verificationLink}}",
       `https://e-commerce-api-jxc4.onrender.com/api/v1/auth/verify-email?email=${email}&verificationToken=${verificationToken}`
     );
+
+    emailBody = emailBody.replace("{{email}}", email);
+    emailBody = emailBody.replace("{{verificationToken}}", verificationToken);
+
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const msg = {
       to: `${email}`,
