@@ -57,8 +57,11 @@ https://documenter.getpostman.com/view/24129958/2s93CEvFpZ
 - `POST /auth/logout`: Log out of the current session
 - `GET /auth/verify-email/?email={useremail}&verificationToken={verificationToken}`: Verify registered user before logging-in (Required)
 
-**Notice**
+**Notice - 1**
 When registering, you will receive a verification link via email. Please use real e-mail address or you won't be able to log-in. Emails are used for a one time verification process, nothing else.
+
+**Notice - 2**
+If you decide to verify in the postman, make sure to iclude Content-Type as application/json in headers.
 
 ### User:
 
