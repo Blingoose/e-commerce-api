@@ -9,6 +9,7 @@ import sgMail from "@sendgrid/mail";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { sendResponse } from "../utils/utils.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
@@ -85,15 +86,20 @@ const authControllers = {
       throw new CustomErrors.BadRequestError("Account is already verified");
     }
 
-    user.isVerified = true;
-    user.verified = Date.now();
-    user.verificationToken = "";
+    if (user.isVerified) {
+      sendResponse(req, res, { isVerified: true });
+    } else if (user.verificationToken === verificationToken) {
+      user.isVerified = true;
+      user.verified = Date.now();
+      user.verificationToken = "";
+      await user.save();
 
-    await user.save();
-
-    res.status(StatusCodes.OK).json({
-      msg: "You've successfully verified the account",
-    });
+      sendResponse(req, res, {
+        msg: "You've successfully verified the account",
+      });
+    } else {
+      throw new CustomErrors.UnauthorizedError("Verification failed");
+    }
   }),
 
   login: asyncWrapper(async (req, res, next) => {

@@ -1,3 +1,8 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
+
 export const validatorMinMax = (validationType, validationValue) => {
   return {
     validator: (val) => {
@@ -50,3 +55,16 @@ export const excludeFields = (
   }
   return exclude;
 };
+
+export function sendResponse(req, res, message) {
+  const acceptHeader = req.headers["accept"];
+  if (acceptHeader === "application/json") {
+    res.status(StatusCodes.OK).json(message);
+  } else if (acceptHeader === "text/html") {
+    const fileName = message.isVerified
+      ? "verified.html"
+      : "verification-failed.html";
+    const filePath = path.join(__dirname, "../public", fileName);
+    res.sendFile(filePath);
+  }
+}
