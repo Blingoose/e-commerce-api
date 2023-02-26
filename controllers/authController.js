@@ -37,7 +37,7 @@ const authControllers = {
 
     let emailBody = emailTemplate.replace(
       "{{verificationLink}}",
-      `http://localhost:8000/api/v1/auth/verify-email?email=${encodeURIComponent(
+      `https://e-commerce-api-jxc4.onrender.com/api/v1/auth/verify-email?email=${encodeURIComponent(
         email
       )}&verificationToken=${encodeURIComponent(verificationToken)}`
     );
