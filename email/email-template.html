@@ -88,17 +88,25 @@
   <body>
     <div class="center">
       <h1>Account verification</h1>
-      <p>
-        <a href="https://documenter.getpostman.com/view/24129958/2s93CEvFpZ">
-          Documentation
-        </a>
-      </p>
       <p class="token">
-        To verify your account visit the link or copy it via postman or similar
-        tools.
+        To verify your account visit the link:
+        <a href="{{verificationLink}}">Verify Account</a>
         <br />
         <br />
-        <a href="{{verificationLink}}">{{verificationLink}}</a>
+        Or copy the values via 'verify-email':
+        <br />
+        email: {{email}}
+        <br />
+        verificationToken:{{verificationToken}}
+        <br />
+        <br />
+      </p>
+
+      <p>
+        For more info visit the
+        <a href="https://documenter.getpostman.com/view/24129958/2s93CEvFpZ">
+          Documentation Page
+        </a>
       </p>
     </div>
   </body>
