@@ -24,15 +24,15 @@ function sendResponse(
     const acceptHeader = req.headers["accept"];
     const contentType = req.headers["content-type"];
 
-    if (contentType === "application/json") {
+    if (contentType.startsWith("*/*")) {
       if (isVerified && alreadyVerified === null) {
         res.status(StatusCodes.OK).json(message);
       } else if (alreadyVerified) {
-        throw new CustomErrors.BadRequestError(Object.values(message)[0]);
+        throw new CustomErrors.BadRequestError(Object.values(message));
       } else {
-        throw new CustomErrors.UnauthorizedError(Object.values(message)[0]);
+        throw new CustomErrors.UnauthorizedError(Object.values(message));
       }
-    } else if (acceptHeader.startsWith("*/*")) {
+    } else if (acceptHeader.startsWith("text/html")) {
       let fileName = "";
       if (alreadyVerified === null) {
         fileName = isVerified ? "verified.html" : "verification-failed.html";
