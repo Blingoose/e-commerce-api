@@ -12,7 +12,16 @@ import { fileURLToPath } from "url";
 import { sendResponse } from "../utils/utils.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
-
+function sendResponse(req, res, isVerified, message) {
+  const acceptHeader = req.headers["accept"];
+  if (acceptHeader === "application/json") {
+    res.status(StatusCodes.OK).json(message);
+  } else if (acceptHeader === "text/html") {
+    const fileName = isVerified ? "verified.html" : "verification-failed.html";
+    const filePath = path.join(__dirname, "../public", fileName);
+    res.sendFile(filePath);
+  }
+}
 const authControllers = {
   register: asyncWrapper(async (req, res, next) => {
     const { name, email, password, username } = req.body;

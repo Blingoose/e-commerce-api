@@ -55,14 +55,3 @@ export const excludeFields = (
   }
   return exclude;
 };
-
-export function sendResponse(req, res, message, isVerified) {
-  const acceptHeader = req.headers["accept"];
-  if (acceptHeader === "application/json") {
-    res.status(StatusCodes.OK).json(message);
-  } else if (acceptHeader === "text/html") {
-    const fileName = isVerified ? "verified.html" : "verification-failed.html";
-    const filePath = path.join(__dirname, "../public", fileName);
-    res.sendFile(filePath);
-  }
-}
