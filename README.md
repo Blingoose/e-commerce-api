@@ -45,7 +45,7 @@ Web Services on the free instance type on Render.com are automatically spun down
 This can cause a response delay of up to 30 seconds for the first request that comes in after a period of inactivity.
 
 **Notice - 2**
-When registering, you will receive a verificationToken via email. Please use real e-mail address or you won't be able to log-in. Emails are used for a one time verification process, nothing else.
+When registering, you will receive a verification link via email. Please use real e-mail address or you won't be able to log-in. Emails are used for a one time verification process, nothing else.
 
 ### URL for published documentation
 
@@ -58,7 +58,7 @@ https://documenter.getpostman.com/view/24129958/2s93CEvFpZ
 - `POST /auth/register`: Register a new user
 - `POST /auth/login`: Login as a registered user
 - `POST /auth/logout`: Log out of the current session
-- `POST /auth/verify-email`: Verify registered user before logging-in (Required)
+- `POST /auth/verify-email/?email={useremail}&verificationToken={verificationToken}`: Verify registered user before logging-in (Required)
 
 ### User:
 
