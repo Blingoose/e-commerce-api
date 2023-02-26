@@ -28,9 +28,9 @@ function sendResponse(
       if (isVerified && alreadyVerified === null) {
         res.status(StatusCodes.OK).json(message);
       } else if (alreadyVerified) {
-        throw new CustomErrors.BadRequestError(Object.values(message));
+        throw new CustomErrors.BadRequestError(Object.values(message)[0]);
       } else {
-        throw new CustomErrors.UnauthorizedError(Object.values(message));
+        throw new CustomErrors.UnauthorizedError(Object.values(message)[0]);
       }
     } else if (acceptHeader.startsWith("*/*")) {
       let fileName = "";
