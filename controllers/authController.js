@@ -24,7 +24,7 @@ function sendResponse(
     const acceptHeader = req.headers["accept"];
     const contentType = req.headers["content-type"];
 
-    if (contentType?.toLowerCase().startsWith("application/json")) {
+    if (contentType?.toLowerCase()?.startsWith("application/json")) {
       if (isVerified && alreadyVerified === null) {
         res.status(StatusCodes.OK).json(message);
       } else if (alreadyVerified) {
@@ -32,7 +32,7 @@ function sendResponse(
       } else {
         throw new CustomErrors.UnauthorizedError(Object.values(message));
       }
-    } else if (acceptHeader?.toLowerCase().startsWith("text/html")) {
+    } else if (acceptHeader?.toLowerCase()?.startsWith("text/html")) {
       let fileName = "";
       if (alreadyVerified === null) {
         fileName = isVerified ? "verified.html" : "verification-failed.html";
