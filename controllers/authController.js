@@ -24,7 +24,7 @@ function sendResponse(
     const acceptHeader = req.headers["accept"];
     const contentType = req.headers["content-type"];
 
-    if (contentType.startsWith("*/*")) {
+    if (contentType === "*/*") {
       if (isVerified && alreadyVerified === null) {
         res.status(StatusCodes.OK).json(message);
       } else if (alreadyVerified) {
