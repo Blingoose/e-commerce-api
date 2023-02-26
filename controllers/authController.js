@@ -21,8 +21,8 @@ function sendResponse(
   alreadyVerified = null
 ) {
   try {
-    const acceptHeader = req.headers["accept"].toLowerCase();
-    const contentType = req.headers["content-type"].toLowerCase();
+    const acceptHeader = req.headers["accept"];
+    const contentType = req.headers["content-type"];
 
     if (contentType.startsWith("application/json")) {
       if (isVerified && alreadyVerified === null) {
