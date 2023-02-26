@@ -9,19 +9,48 @@ import sgMail from "@sendgrid/mail";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { sendResponse } from "../utils/utils.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
-function sendResponse(req, res, isVerified, message) {
-  const acceptHeader = req.headers["accept"];
-  if (acceptHeader === "application/json") {
-    res.status(StatusCodes.OK).json(message);
-  } else if (acceptHeader === "text/html") {
-    const fileName = isVerified ? "verified.html" : "verification-failed.html";
-    const filePath = path.join(__dirname, "../public", fileName);
-    res.sendFile(filePath);
+
+function sendResponse(
+  req,
+  res,
+  next,
+  message,
+  isVerified,
+  alreadyVerified = null
+) {
+  try {
+    const acceptHeader = req.headers["accept"];
+    const contentType = req.headers["content-type"];
+
+    if (contentType === "application/json") {
+      if (isVerified && alreadyVerified === null) {
+        res.status(StatusCodes.OK).json(message);
+      } else if (alreadyVerified) {
+        throw new CustomErrors.BadRequestError(Object.values(message));
+      } else {
+        throw new CustomErrors.UnauthorizedError(Object.values(message));
+      }
+    } else if (acceptHeader.startsWith("text/html")) {
+      let fileName = "";
+      if (alreadyVerified === null) {
+        fileName = isVerified ? "verified.html" : "verification-failed.html";
+        const filePath = path.resolve(__dirname, `../public/${fileName}`);
+        res
+          .status(isVerified ? StatusCodes.OK : StatusCodes.UNAUTHORIZED)
+          .sendFile(filePath);
+      } else if (alreadyVerified) {
+        fileName = "already-verified.html";
+        const filePath = path.resolve(__dirname, `../public/${fileName}`);
+        res.status(StatusCodes.BAD_REQUEST).sendFile(filePath);
+      }
+    }
+  } catch (error) {
+    next(error);
   }
 }
+
 const authControllers = {
   register: asyncWrapper(async (req, res, next) => {
     const { name, email, password, username } = req.body;
@@ -45,7 +74,7 @@ const authControllers = {
       "utf-8"
     );
 
-    let emailBody = emailTemplate.replace(
+    let emailBody = emailTemplate.replaceAll(
       "{{verificationLink}}",
       `https://e-commerce-api-jxc4.onrender.com/api/v1/auth/verify-email?email=${email}&verificationToken=${verificationToken}`
     );
@@ -67,8 +96,6 @@ const authControllers = {
   verifyEmail: asyncWrapper(async (req, res, next) => {
     const { verificationToken, email } = req.query;
 
-    console.log(verificationToken, email);
-
     if (!email) {
       throw new CustomErrors.UnauthorizedError("Must provide an email");
     }
@@ -89,18 +116,17 @@ const authControllers = {
       throw new CustomErrors.UnauthorizedError("Verification failed");
     }
 
-    // if (!user.isVerified && user.verificationToken !== verificationToken) {
-    //   throw new CustomErrors.UnauthorizedError("Verification failed");
-    // } else if (user.isVerified === true) {
-    //   throw new CustomErrors.BadRequestError("Account is already verified");
-    // }
-
     if (user.isVerified) {
+      const isAlreadyVerified = true;
       sendResponse(
         req,
         res,
-        { isVerified: user.isVerified },
-        { msg: "Account is already Verified!" }
+        next,
+        {
+          msg: "Account is already verified!",
+        },
+        user.isVerified,
+        isAlreadyVerified
       );
     } else if (user.verificationToken === verificationToken) {
       user.isVerified = true;
@@ -110,13 +136,24 @@ const authControllers = {
       sendResponse(
         req,
         res,
-        { isVerified: user.isVerified },
+        next,
         {
-          msg: "You've successfully verified the account",
-        }
+          msg: user.isVerified
+            ? "You've successfully verified the account"
+            : "Verification Failed",
+        },
+        user.isVerified
       );
     } else {
-      throw new CustomErrors.UnauthorizedError("Verification failed");
+      sendResponse(
+        req,
+        res,
+        next,
+        {
+          msg: "Verification Failed",
+        },
+        user.isVerified
+      );
     }
   }),
 
