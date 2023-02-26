@@ -21,10 +21,10 @@ function sendResponse(
   alreadyVerified = null
 ) {
   try {
-    const acceptHeader = req.headers["accept"];
-    const contentType = req.headers["content-type"];
+    const acceptHeader = req.headers["accept"].toLowerCase();
+    const contentType = req.headers["content-type"].toLowerCase();
 
-    if (contentType === "application/json") {
+    if (contentType.startsWith("application/json")) {
       if (isVerified && alreadyVerified === null) {
         res.status(StatusCodes.OK).json(message);
       } else if (alreadyVerified) {
