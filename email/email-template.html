@@ -54,6 +54,10 @@
         color: rgb(91, 49, 91);
       }
 
+      .subject {
+        color: rgb(223, 67, 28);
+      }
+
       @media screen and (max-width: 767px) {
         h1 {
           font-size: 32spx;
@@ -88,6 +92,13 @@
   <body>
     <div class="center">
       <h1>Account verification</h1>
+
+      <p>
+        <span class="subject">For more info visit: </span>
+        <a href="https://documenter.getpostman.com/view/24129958/2s93CEvFpZ">
+          Documentation Page
+        </a>
+      </p>
       <p class="token">
         To verify your account visit the link:
         <a href="{{verificationLink}}">Verify Account</a>
@@ -95,18 +106,11 @@
         <br />
         Or copy the values via 'verify-email':
         <br />
-        email: {{email}}
+        <span class="subject">email: </span> {{email}}
         <br />
-        verificationToken:{{verificationToken}}
+        <span class="subject">verificationToken: </span> {{verificationToken}}
         <br />
         <br />
-      </p>
-
-      <p>
-        For more info visit the
-        <a href="https://documenter.getpostman.com/view/24129958/2s93CEvFpZ">
-          Documentation Page
-        </a>
       </p>
     </div>
   </body>
