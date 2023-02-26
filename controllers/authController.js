@@ -117,7 +117,7 @@ const authControllers = {
     const user = await User.findOne({ email });
 
     if (!user) {
-      throw new CustomErrors.UnauthorizedError("Verification failed");
+      throw new CustomErrors.UnauthorizedError("Verification failed!");
     }
 
     if (user.isVerified) {
@@ -127,7 +127,7 @@ const authControllers = {
         res,
         next,
         {
-          msg: "Account is already verified!",
+          msg: "Account has already been verified!",
         },
         user.isVerified,
         isAlreadyVerified
@@ -143,8 +143,8 @@ const authControllers = {
         next,
         {
           msg: user.isVerified
-            ? "You've successfully verified the account"
-            : "Verification Failed",
+            ? "You've successfully verified the account!"
+            : "Verification Failed!",
         },
         user.isVerified
       );
@@ -154,7 +154,7 @@ const authControllers = {
         res,
         next,
         {
-          msg: "Verification Failed",
+          msg: "Verification Failed!",
         },
         user.isVerified
       );
