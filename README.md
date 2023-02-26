@@ -5,6 +5,7 @@
 Welcome to the E-Commerce API, a RESTful API that allows you to manage various aspects of an e-commerce platform. With this API, you can perform actions such as:
 
 - Registering a user
+- Verify user account via email
 - Logging in and out
 - Retrieving details about users
 - Creating and managing products
