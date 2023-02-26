@@ -36,12 +36,11 @@ const authControllers = {
     );
 
     let emailBody = emailTemplate.replace(
-      "{{verificationToken}}",
-      verificationToken
+      "{{verificationLink}}",
+      `http://localhost:8000/api/v1/auth/verify-email?email=${encodeURIComponent(
+        email
+      )}&verificationToken=${encodeURIComponent(verificationToken)}`
     );
-
-    emailBody = emailBody.replace("{{email}}", email);
-
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const msg = {
       to: `${email}`,
@@ -58,7 +57,9 @@ const authControllers = {
   }),
 
   verifyEmail: asyncWrapper(async (req, res, next) => {
-    const { verificationToken, email } = req.body;
+    const { verificationToken, email } = req.query;
+
+    console.log(verificationToken, email);
 
     if (!email) {
       throw new CustomErrors.UnauthorizedError("Must provide an email");
