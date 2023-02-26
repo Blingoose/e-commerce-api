@@ -37,9 +37,7 @@ const authControllers = {
 
     let emailBody = emailTemplate.replace(
       "{{verificationLink}}",
-      `https://e-commerce-api-jxc4.onrender.com/api/v1/auth/verify-email?email=${encodeURIComponent(
-        email
-      )}&verificationToken=${encodeURIComponent(verificationToken)}`
+      `https://e-commerce-api-jxc4.onrender.com/api/v1/auth/verify-email?email=${email}&verificationToken=${verificationToken}`
     );
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const msg = {
