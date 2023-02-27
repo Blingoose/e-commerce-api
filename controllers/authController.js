@@ -12,42 +12,35 @@ import { fileURLToPath } from "url";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
-function sendResponse(
-  req,
-  res,
-  next,
-  message,
-  isVerified,
-  alreadyVerified = null
-) {
-  try {
-    const acceptHeader = req.headers["accept"];
-    const contentType = req.headers["content-type"];
+function sendResponse(req, res, message, isVerified, alreadyVerified = false) {
+  const acceptHeader = req.headers["accept"]?.toLowerCase();
+  const contentType = req.headers["content-type"]?.toLowerCase();
 
-    if (contentType?.toLowerCase()?.startsWith("application/json")) {
-      if (isVerified && alreadyVerified === null) {
-        res.status(StatusCodes.OK).json(message);
-      } else if (alreadyVerified) {
-        throw new CustomErrors.BadRequestError(Object.values(message));
-      } else {
-        throw new CustomErrors.UnauthorizedError(Object.values(message));
-      }
-    } else if (acceptHeader?.toLowerCase()?.startsWith("text/html")) {
-      let fileName = "";
-      if (alreadyVerified === null) {
-        fileName = isVerified ? "verified.html" : "verification-failed.html";
-        const filePath = path.resolve(__dirname, `../public/${fileName}`);
-        res
-          .status(isVerified ? StatusCodes.OK : StatusCodes.UNAUTHORIZED)
-          .sendFile(filePath);
-      } else if (alreadyVerified) {
-        fileName = "already-verified.html";
-        const filePath = path.resolve(__dirname, `../public/${fileName}`);
-        res.status(StatusCodes.BAD_REQUEST).sendFile(filePath);
-      }
+  let fileName;
+  let statusCode;
+
+  if (alreadyVerified) {
+    fileName = "already-verified.html";
+    statusCode = StatusCodes.BAD_REQUEST;
+  } else {
+    fileName = isVerified ? "verified.html" : "verification-failed.html";
+    statusCode = isVerified ? StatusCodes.OK : StatusCodes.UNAUTHORIZED;
+  }
+
+  if (contentType && contentType.startsWith("application/json")) {
+    if (isVerified && alreadyVerified === false) {
+      return res.status(statusCode).json(message);
     }
-  } catch (error) {
-    next(error);
+
+    const customError = new CustomErrors[
+      statusCode === StatusCodes.BAD_REQUEST
+        ? "BadRequestError"
+        : "UnauthorizedError"
+    ](Object.values(message));
+    throw customError;
+  } else if (acceptHeader && acceptHeader.startsWith("text/html")) {
+    const filePath = path.resolve(__dirname, `../public/${fileName}`);
+    return res.status(statusCode).sendFile(filePath);
   }
 }
 
@@ -60,7 +53,7 @@ const authControllers = {
     const role = isFirstAccount ? "admin" : "user";
 
     const verificationToken = crypto.randomBytes(40).toString("hex");
-    const user = await User.create({
+    await User.create({
       name,
       username,
       email,
@@ -115,49 +108,36 @@ const authControllers = {
     }
 
     const user = await User.findOne({ email });
-
+    const message = { msg: "Verification failed!" };
     if (!user) {
-      throw new CustomErrors.UnauthorizedError("Verification failed!");
+      return sendResponse(req, res, message);
     }
 
     if (user.isVerified) {
       const isAlreadyVerified = true;
-      sendResponse(
+      const message = { msg: "Account has already been verified!" };
+      return sendResponse(
         req,
         res,
-        next,
-        {
-          msg: "Account has already been verified!",
-        },
+        message,
         user.isVerified,
         isAlreadyVerified
       );
     } else if (user.verificationToken === verificationToken) {
+      const msg = user.isVerified
+        ? "You've successfully verified the account!"
+        : "Verification Failed!";
+      const message = { msg };
+
       user.isVerified = true;
       user.verified = Date.now();
       user.verificationToken = "";
       await user.save();
-      sendResponse(
-        req,
-        res,
-        next,
-        {
-          msg: user.isVerified
-            ? "You've successfully verified the account!"
-            : "Verification Failed!",
-        },
-        user.isVerified
-      );
+
+      return sendResponse(req, res, message, user.isVerified);
     } else {
-      sendResponse(
-        req,
-        res,
-        next,
-        {
-          msg: "Verification Failed!",
-        },
-        user.isVerified
-      );
+      const message = { msg: "Verification failed!" };
+      return sendResponse(req, res, message, user.isVerified);
     }
   }),
 
