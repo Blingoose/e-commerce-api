@@ -124,15 +124,15 @@ const authControllers = {
         isAlreadyVerified
       );
     } else if (user.verificationToken === verificationToken) {
-      const msg = user.isVerified
-        ? "You've successfully verified the account!"
-        : "Verification Failed!";
-      const message = { msg };
-
       user.isVerified = true;
       user.verified = Date.now();
       user.verificationToken = "";
       await user.save();
+
+      const msg = user.isVerified
+        ? "You've successfully verified the account!"
+        : "Verification Failed!";
+      const message = { msg };
 
       return sendResponse(req, res, message, user.isVerified);
     } else {
