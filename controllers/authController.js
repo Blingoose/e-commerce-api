@@ -1,5 +1,6 @@
 import asyncWrapper from "../middleware/asyncWrapper.js";
 import User from "../models/User.js";
+import Token from "../models/Token.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
@@ -170,7 +171,20 @@ const authControllers = {
     }
 
     const tokenUser = jwtHandler.createTokenUser(user);
-    jwtHandler.attachCookiesToResponse({ res, user: tokenUser });
+    let refreshToken = "";
+
+    //create refresh token
+    refreshToken = crypto.randomBytes(40).toString("hex");
+    const userAgent = req.headers["user-agent"];
+    const ip = req.ip;
+    const userToken = { refreshToken, ip, userAgent, user: user._id };
+
+    await Token.create(userToken);
+
+    //TODO check for existing token
+
+    jwtHandler.attachCookiesToResponse({ res, user: tokenUser, refreshToken });
+
     res.status(StatusCodes.OK).json({ user: tokenUser });
   }),
 
