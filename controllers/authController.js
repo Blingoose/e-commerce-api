@@ -68,9 +68,10 @@ const authControllers = {
       "utf-8"
     );
 
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
     let emailBody = emailTemplate.replace(
       "{{verificationLink}}",
-      `https://e-commerce-api-jxc4.onrender.com/api/v1/auth/verify-email?email=${email}&verificationToken=${verificationToken}`
+      `${baseUrl}/api/v1/auth/verify-email?email=${email}&verificationToken=${verificationToken}`
     );
 
     emailBody = emailBody.replace("{{email}}", email);
