@@ -2,7 +2,8 @@ import CustomErrors from "../errors/error-index.js";
 import jwtHandler from "../utils/jwt.js";
 
 export const authenticateUser = (req, res, next) => {
-  const token = req.signedCookies.token;
+  const token = req.signedCookies.accessToken || req.signedCookies.refreshToken;
+  console.log(req.signedCookies);
 
   if (!token) {
     throw new CustomErrors.UnauthorizedError("Authentication invalid");
@@ -10,13 +11,13 @@ export const authenticateUser = (req, res, next) => {
 
   try {
     const payload = jwtHandler.isTokenValid({ token });
+    console.log(payload);
 
     req.user = {
-      userId: payload.userId,
-      name: payload.name,
-      role: payload.role,
-      username: payload.username,
-      expiration: new Date(payload.exp * 1000).toLocaleString(),
+      userId: payload.user.userId,
+      name: payload.user.name,
+      role: payload.user.role,
+      username: payload.user.username,
     };
     next();
   } catch (error) {
