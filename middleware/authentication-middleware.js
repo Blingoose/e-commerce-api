@@ -1,29 +1,45 @@
 import CustomErrors from "../errors/error-index.js";
+import Token from "../models/Token.js";
 import jwtHandler from "../utils/jwt.js";
+import asyncWrapper from "./asyncWrapper.js";
+import crypto from "crypto";
 
-export const authenticateUser = (req, res, next) => {
-  const token = req.signedCookies.accessToken || req.signedCookies.refreshToken;
-  console.log(req.signedCookies);
+export const authenticateUser = asyncWrapper(async (req, res, next) => {
+  const { accessToken, refreshToken } = req.signedCookies;
 
-  if (!token) {
+  if (!accessToken && !refreshToken) {
     throw new CustomErrors.UnauthorizedError("Authentication invalid");
   }
 
-  try {
-    const payload = jwtHandler.isTokenValid({ token });
-    console.log(payload);
-
-    req.user = {
-      userId: payload.user.userId,
-      name: payload.user.name,
-      role: payload.user.role,
-      username: payload.user.username,
-    };
-    next();
-  } catch (error) {
-    throw new CustomErrors.UnauthorizedError("Authentication invalid");
+  if (accessToken) {
+    const payload = jwtHandler.isTokenValid(accessToken);
+    req.user = payload.user;
+    return next();
   }
-};
+
+  const payload = jwtHandler.isTokenValid(refreshToken);
+  const existingToken = await Token.findOne({
+    user: payload.user.userId,
+    refreshToken: payload.refreshToken,
+  });
+
+  if (!existingToken || !existingToken?.isValid) {
+    throw new CustomErrors.UnauthorizedError("Authentication Invalid");
+  }
+
+  const newRefreshToken = crypto.randomBytes(40).toString("hex");
+  existingToken.refreshToken = newRefreshToken;
+  await existingToken.save();
+
+  jwtHandler.attachCookiesToResponse({
+    res,
+    user: payload.user,
+    refreshToken: existingToken.refreshToken,
+  });
+
+  req.user = payload.user;
+  next();
+});
 
 export const authorizePermissions = (...roles) => {
   return (req, res, next) => {
