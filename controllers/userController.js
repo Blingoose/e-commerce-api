@@ -5,6 +5,7 @@ import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
 import { excludeFields } from "../utils/utils.js";
 import checkPermission from "../utils/checkPermissions.js";
+import authControllers from "./authController.js";
 
 const userControllers = {
   getAllUsers: asyncWrapper(async (req, res, next) => {
@@ -103,11 +104,7 @@ const userControllers = {
     await user.remove();
 
     //logout after user deletion.
-    res.cookie("token", "logout", {
-      httpOnly: true,
-      expires: new Date(Date.now()),
-    });
-
+    authControllers.logout();
     res
       .status(StatusCodes.OK)
       .json(`User ${username} had been successfully removed`);
