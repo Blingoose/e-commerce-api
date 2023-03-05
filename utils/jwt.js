@@ -8,26 +8,26 @@ const jwtHandler = {
     return token;
   },
 
-  isTokenValid({ token }) {
+  isTokenValid(token) {
     return jwt.verify(token, process.env.JWT_SECRET);
   },
 
   attachCookiesToResponse({ res, user, refreshToken }) {
     const accessTokenJWT = this.createJWT({ payload: { user } });
     const refreshTokenJWT = this.createJWT({ payload: { user, refreshToken } });
-    const fifteenMinutes = 1000 * 60 * 15;
-    const oneMonth = fifteenMinutes * 4 * 24 * 30;
+    const oneHour = 1000 * 60 * 60;
+    const thirtyDays = oneHour * 24 * 30;
 
     res.cookie("accessToken", accessTokenJWT, {
       httpOnly: true,
-      expires: new Date(Date.now() + fifteenMinutes),
+      expires: new Date(Date.now() + oneHour),
       secure: process.env.NODE_ENV === "production",
       signed: true,
     });
 
     res.cookie("refreshToken", refreshTokenJWT, {
       httpOnly: true,
-      expires: new Date(Date.now() + oneMonth),
+      expires: new Date(Date.now() + thirtyDays),
       secure: process.env.NODE_ENV === "production",
       signed: true,
     });
