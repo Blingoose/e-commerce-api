@@ -174,7 +174,21 @@ const authControllers = {
     const tokenUser = jwtHandler.createTokenUser(user);
     let refreshToken = "";
 
-    //create refresh token
+    const existingToken = await Token.findOne({ user: user._id });
+    if (existingToken) {
+      if (!existingToken["isValid"]) {
+        throw new CustomErrors.UnauthorizedError("Invalid credentials");
+      }
+
+      jwtHandler.attachCookiesToResponse({
+        res,
+        user: tokenUser,
+        refreshToken: existingToken.refreshToken,
+      });
+      return res.status(StatusCodes.OK).json({ user: tokenUser });
+    }
+
+    //if no existingToken create a refresh token
     refreshToken = crypto.randomBytes(40).toString("hex");
     const userAgent = req.headers["user-agent"];
     const ip = req.ip;
@@ -182,15 +196,22 @@ const authControllers = {
 
     await Token.create(userToken);
 
-    //TODO check for existing token
-
-    jwtHandler.attachCookiesToResponse({ res, user: tokenUser, refreshToken });
+    jwtHandler.attachCookiesToResponse({
+      res,
+      user: tokenUser,
+      refreshToken,
+    });
 
     res.status(StatusCodes.OK).json({ user: tokenUser });
   }),
 
   logout: (req, res) => {
-    res.cookie("token", "logout", {
+    res.cookie("accessToken", "logout", {
+      httpOnly: true,
+      expires: new Date(Date.now()),
+    });
+
+    res.cookie("refreshToken", "logout", {
       httpOnly: true,
       expires: new Date(Date.now()),
     });
