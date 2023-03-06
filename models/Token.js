@@ -10,6 +10,13 @@ const TokenSchema = new mongoose.Schema(
 
     isValid: { type: Boolean, default: true },
 
+    status: {
+      type: String,
+      enum: ["active", "logged-out", "banned"],
+      required: true,
+      default: "active",
+    },
+
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
