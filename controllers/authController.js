@@ -1,15 +1,16 @@
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import asyncWrapper from "../middleware/asyncWrapper.js";
 import User from "../models/User.js";
 import Token from "../models/Token.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
+import { logoutUser } from "../utils/utils.js";
 import validator from "validator";
 import crypto from "crypto";
 import sgMail from "@sendgrid/mail";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
@@ -73,10 +74,10 @@ const authControllers = {
       "{{verificationLink}}",
       `${baseUrl}/api/v1/auth/verify-email?email=${email}&verificationToken=${verificationToken}`
     );
-
     emailBody = emailBody.replace("{{email}}", email);
     emailBody = emailBody.replace("{{verificationToken}}", verificationToken);
 
+    //create mail via sendgrid.
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const msg = {
       to: `${email}`,
@@ -205,18 +206,12 @@ const authControllers = {
     res.status(StatusCodes.OK).json({ user: tokenUser });
   }),
 
-  logout: (req, res) => {
-    res.cookie("accessToken", "logout", {
-      httpOnly: true,
-      expires: new Date(Date.now()),
-    });
+  logout: asyncWrapper(async (req, res, next) => {
+    await Token.findOneAndDelete({ user: req.user.userId });
+    logoutUser(res);
 
-    res.cookie("refreshToken", "logout", {
-      httpOnly: true,
-      expires: new Date(Date.now()),
-    });
     res.status(StatusCodes.OK).send({ msg: "Logged-out" });
-  },
+  }),
 };
 
 export default authControllers;
