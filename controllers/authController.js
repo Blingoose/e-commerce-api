@@ -7,7 +7,7 @@ import Token from "../models/Token.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
-import { logoutUser } from "../utils/utils.js";
+import { removeTokensFromCookies } from "../utils/utils.js";
 import validator from "validator";
 import crypto from "crypto";
 import sgMail from "@sendgrid/mail";
@@ -177,15 +177,21 @@ const authControllers = {
 
     const existingToken = await Token.findOne({ user: user._id });
     if (existingToken) {
-      if (!existingToken["isValid"]) {
+      const { isValid, status } = existingToken;
+      if (!isValid && status !== "logged-out") {
         throw new CustomErrors.UnauthorizedError("Invalid credentials");
       }
+
+      existingToken.status = "active";
+      existingToken.isValid = true;
+      await existingToken.save();
 
       jwtHandler.attachCookiesToResponse({
         res,
         user: tokenUser,
         refreshToken: existingToken.refreshToken,
       });
+
       return res.status(StatusCodes.OK).json({ user: tokenUser });
     }
 
@@ -207,8 +213,11 @@ const authControllers = {
   }),
 
   logout: asyncWrapper(async (req, res, next) => {
-    await Token.findOneAndDelete({ user: req.user.userId });
-    logoutUser(res);
+    await Token.findOneAndUpdate(
+      { user: req.user.userId },
+      { status: "logged-out", isValid: false }
+    );
+    removeTokensFromCookies(res);
 
     res.status(StatusCodes.OK).send({ msg: "Logged-out" });
   }),
