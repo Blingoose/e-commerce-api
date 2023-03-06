@@ -55,3 +55,14 @@ export const excludeFields = (
   }
   return exclude;
 };
+
+export const logoutUser = (res) => {
+  res.cookie("accessToken", "logout", {
+    httpOnly: true,
+    expires: new Date(Date.now()),
+  });
+  res.cookie("refreshToken", "logout", {
+    httpOnly: true,
+    expires: new Date(Date.now()),
+  });
+};
