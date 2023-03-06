@@ -54,9 +54,9 @@ https://documenter.getpostman.com/view/24129958/2s93CEvFpZ
 ### Auth:
 
 - `POST /auth/register`: Register a new user
-- `POST /auth/login`: Login as a registered user (authenticated accounts only)
+- `POST /auth/login`: Login as a registered user (verified accounts only)
 - `DELETE /auth/logout`: Log out of the current session
-- `GET /auth/verify-email/?email={useremail}&verificationToken={verificationToken}`: Verify registered account (Required)
+- `GET /auth/verify-email/?email={useremail}&verificationToken={verificationToken}`: Verify registered account (required)
 
 **Notice - 1**
 When registering, you will receive a verification link via email. Please use real e-mail address or you won't be able to log-in. Emails are used for a one time verification process, nothing else.
