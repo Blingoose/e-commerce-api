@@ -1,9 +1,10 @@
 import User from "../models/User.js";
+import Token from "../models/Token.js";
 import asyncWrapper from "../middleware/asyncWrapper.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
-import { excludeFields } from "../utils/utils.js";
+import { excludeFields, logoutUser } from "../utils/utils.js";
 import checkPermission from "../utils/checkPermissions.js";
 import authControllers from "./authController.js";
 
@@ -101,10 +102,12 @@ const userControllers = {
     }
 
     checkPermission(req.user, user._id.toString(), username);
+    // logout before deletion
+    await Token.findOneAndDelete({ user: req.user.userId });
+
+    logoutUser(res);
     await user.remove();
 
-    //logout after user deletion.
-    authControllers.logout();
     res
       .status(StatusCodes.OK)
       .json(`User ${username} had been successfully removed`);
