@@ -56,7 +56,7 @@ export const excludeFields = (
   return exclude;
 };
 
-export const logoutUser = (res) => {
+export const removeTokensFromCookies = (res) => {
   res.cookie("accessToken", "logout", {
     httpOnly: true,
     expires: new Date(Date.now()),
