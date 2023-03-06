@@ -4,9 +4,8 @@ import asyncWrapper from "../middleware/asyncWrapper.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
-import { excludeFields, logoutUser } from "../utils/utils.js";
+import { excludeFields, removeTokensFromCookies } from "../utils/utils.js";
 import checkPermission from "../utils/checkPermissions.js";
-import authControllers from "./authController.js";
 
 const userControllers = {
   getAllUsers: asyncWrapper(async (req, res, next) => {
@@ -102,11 +101,11 @@ const userControllers = {
     }
 
     checkPermission(req.user, user._id.toString(), username);
-    // logout before deletion
-    await Token.findOneAndDelete({ user: req.user.userId });
 
-    logoutUser(res);
+    await Token.findOneAndDelete({ user: req.user.userId });
     await user.remove();
+    //remove active tokens from cookies after user deletion (logging-out)
+    removeTokensFromCookies(res);
 
     res
       .status(StatusCodes.OK)
