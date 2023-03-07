@@ -16,6 +16,7 @@ Welcome to the E-Commerce API, a RESTful API that allows you to manage various a
 
 The following endpoints require authentication (user must be registered and logged-in):
 
+- Loggin out
 - Updating details of a specific user
 - Reviewing a product
 - Retrieving details about users
