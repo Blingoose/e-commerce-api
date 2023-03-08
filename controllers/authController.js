@@ -294,12 +294,10 @@ const authControllers = {
 
     const user = await User.findOne({ email });
     if (!user) {
-      throw new CustomErrors.BadRequestError(
-        "This link is no longer valid. Repeat the process again"
-      );
+      throw new CustomErrors.BadRequestError("Invalid token");
     }
 
-    if (user?.passwordToken === null) {
+    if (user?.passwordToken === "") {
       throw new CustomErrors.BadRequestError(
         "You've already submitted a new password. Use 'forgot password' to repeat the process."
       );
@@ -313,7 +311,7 @@ const authControllers = {
       user.passwordTokenExpirationDate > currentDate
     ) {
       user.password = password;
-      user.passwordToken = null;
+      user.passwordToken = "";
       user.passwordTokenExpirationDate = null;
       await user.save();
 
