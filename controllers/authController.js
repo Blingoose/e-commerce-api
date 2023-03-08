@@ -286,7 +286,7 @@ const authControllers = {
     }
 
     // Validate the password
-    if (!password || password.length < 8) {
+    if (!password || password.length < 6) {
       throw new CustomErrors.BadRequestError(
         "Password must be at least 6 characters long"
       );
@@ -315,8 +315,13 @@ const authControllers = {
       user.passwordTokenExpirationDate = null;
       await user.save();
 
-      res.status(StatusCodes.OK).json({ msg: "Password updated successfully" });
-    } else if (user.passwordTokenExpirationDate < currentDate) {
+      return res
+        .status(StatusCodes.OK)
+        .json({ msg: "Password updated successfully" });
+    } else if (
+      user.passwordTokenExpirationDate &&
+      user.passwordTokenExpirationDate < currentDate
+    ) {
       throw new CustomErrors.BadRequestError(
         "This link is no longer valid. Repeat the process again"
       );
