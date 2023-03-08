@@ -10,8 +10,14 @@ form.addEventListener("submit", async (e) => {
     return (message.innerText = "Passwords do not match!");
   }
   const data = { email, password, token };
-  const url = `${window.location.protocol}//${window.location.hostname}/api/v1/auth/reset-password`;
-  const response = await fetch(url, {
+
+  const dynamicURL = `${window.location.protocol}//${window.location.hostname}${
+    window.location.port ? ":" + window.location.port : ""
+  }/api/v1/auth/reset-password`;
+
+  console.log(dynamicURL);
+
+  const response = await fetch(dynamicURL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
