@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "./axios";
 
 const form = document.querySelector("#reset-password-form");
 const submitButton = document.querySelector(".submit");
