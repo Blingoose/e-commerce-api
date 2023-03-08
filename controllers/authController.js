@@ -306,7 +306,7 @@ const authControllers = {
       );
     }
 
-    if (user?.passwordToken === null) {
+    if (user?.passwordToken == "") {
       throw new CustomErrors.BadRequestError(
         "You've already submitted a new password. Use 'forgot password' to repeat the process."
       );
@@ -320,8 +320,8 @@ const authControllers = {
       user.passwordTokenExpirationDate > currentDate
     ) {
       user.password = password;
-      user.passwordToken = null;
-      user.passwordTokenExpirationDate = null;
+      user.passwordToken = "";
+      user.passwordTokenExpirationDate = "";
       await user.save();
 
       res.status(StatusCodes.OK).json({ msg: "Password updated successfully" });
