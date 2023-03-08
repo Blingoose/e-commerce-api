@@ -10,7 +10,7 @@ import jwtHandler from "../utils/jwt.js";
 import { removeTokensFromCookies } from "../utils/utils.js";
 import validator from "validator";
 import crypto from "crypto";
-import sgMail from "@sendgrid/mail";
+import sendEmail from "../utils/sendEmail.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
@@ -65,7 +65,7 @@ const authControllers = {
     });
 
     const emailTemplate = fs.readFileSync(
-      path.resolve(__dirname, "../email/email-template.html"),
+      path.resolve(__dirname, "../email/verification-email-template.html"),
       "utf-8"
     );
 
@@ -78,15 +78,13 @@ const authControllers = {
     emailBody = emailBody.replace("{{verificationToken}}", verificationToken);
 
     //create mail via sendgrid.
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const msg = {
       to: `${email}`,
       from: "andy.katov@blingoose.net",
       subject: "E-commerce API account verification",
       html: emailBody,
     };
-
-    await sgMail.send(msg);
+    await sendEmail(msg);
 
     res.status(StatusCodes.CREATED).json({
       msg: "Success! Please check your email to verify accout, if you're not seeing the email, please check your spam folder!",
@@ -220,6 +218,120 @@ const authControllers = {
     removeTokensFromCookies(res);
 
     res.status(StatusCodes.OK).send({ msg: "Logged-out" });
+  }),
+
+  forgotPassword: asyncWrapper(async (req, res, next) => {
+    const { email } = req.body;
+    if (!email || !validator.isEmail(email)) {
+      throw new CustomErrors.BadRequestError("Must provide a valid email");
+    }
+
+    const user = await User.findOne({ email });
+
+    if (user) {
+      const passwordToken = crypto.randomBytes(70).toString("hex");
+
+      //send email
+      const fiveMinutes = 1000 * 60 * 5;
+      const passwordTokenExpirationDate = new Date(Date.now() + fiveMinutes);
+
+      user.passwordToken = passwordToken;
+      user.passwordTokenExpirationDate = passwordTokenExpirationDate;
+      await user.save();
+
+      const emailTemplate = fs.readFileSync(
+        path.resolve(__dirname, "../email/reset-password-email-template.html"),
+        "utf-8"
+      );
+
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      let emailBody = emailTemplate.replace(
+        "{{resetPasswordLink}}",
+        `${baseUrl}/api/v1/auth/reset-page?token=${passwordToken}&email=${email}`
+      );
+      emailBody = emailBody.replace("{{email}}", email);
+      emailBody = emailBody.replace("{{token}}", passwordToken);
+
+      const msg = {
+        to: `${email}`,
+        from: "andy.katov@blingoose.net",
+        subject: "E-commerce API Reset Password",
+        html: emailBody,
+      };
+      await sendEmail(msg);
+    }
+
+    res
+      .status(StatusCodes.OK)
+      .json({ msg: "Please check your email for reset password link" });
+  }),
+
+  resetPasswordPage: asyncWrapper(async (req, res, next) => {
+    const urlSearchParams = new URLSearchParams(req.query);
+    const email = urlSearchParams.get("email");
+    const token = urlSearchParams.get("token");
+    let emailBody;
+
+    const emailTemplate = fs.readFileSync(
+      path.resolve(__dirname, "../public/reset-password.html"),
+      "utf-8"
+    );
+    emailBody = emailTemplate.replace("{{email}}", email);
+    emailBody = emailBody.replace("{{token}}", token);
+
+    res.send(emailBody);
+  }),
+
+  resetPassword: asyncWrapper(async (req, res, next) => {
+    const { email, password, token } = req.body;
+    if (!token || !email || !password) {
+      throw new CustomErrors.BadRequestError("Please provide all values");
+    }
+
+    if (!validator.isEmail(email)) {
+      throw new CustomErrors.BadRequestError("Must provide a valid email");
+    }
+
+    // Validate the password
+    if (!password || password.length < 8) {
+      throw new CustomErrors.BadRequestError(
+        "Password must be at least 6 characters long"
+      );
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new CustomErrors.BadRequestError(
+        "This link is no longer valid. Repeat the process again"
+      );
+    }
+
+    if (user?.passwordToken === null) {
+      throw new CustomErrors.BadRequestError(
+        "You've already submitted a new password. Use 'forgot password' to repeat the process."
+      );
+    }
+
+    // Update the user's password in the database
+
+    const currentDate = new Date();
+    if (
+      user.passwordToken === token &&
+      user.passwordTokenExpirationDate > currentDate
+    ) {
+      user.password = password;
+      user.passwordToken = null;
+      user.passwordTokenExpirationDate = null;
+      await user.save();
+
+      res.status(StatusCodes.OK).json({ msg: "Password updated successfully" });
+    } else if (user.passwordTokenExpirationDate < currentDate) {
+      throw new CustomErrors.BadRequestError(
+        "This link is no longer valid. Repeat the process again"
+      );
+    } else {
+      throw new CustomErrors.BadRequestError("Invalid token");
+    }
   }),
 };
 
