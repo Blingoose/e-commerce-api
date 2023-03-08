@@ -312,14 +312,14 @@ const authControllers = {
     ) {
       user.password = password;
       user.passwordToken = "";
-      user.passwordTokenExpirationDate = null;
+      user.passwordTokenExpirationDate = "";
       await user.save();
 
       return res
         .status(StatusCodes.OK)
         .json({ msg: "Password updated successfully" });
     } else if (
-      user.passwordTokenExpirationDate !== null &&
+      !user.passwordToken &&
       user.passwordTokenExpirationDate < currentDate
     ) {
       throw new CustomErrors.BadRequestError(
