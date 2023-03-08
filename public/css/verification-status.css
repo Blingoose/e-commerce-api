@@ -26,6 +26,18 @@ body {
   text-align: center;
 }
 
+.verified {
+  background-color: #4cb944;
+}
+
+.already-verified {
+  background-color: #246eb9;
+}
+
+.verification-failed {
+  background-color: #f83808;
+}
+
 h1 {
   margin: 0 40px;
 }
