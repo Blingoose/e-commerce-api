@@ -319,7 +319,7 @@ const authControllers = {
         .status(StatusCodes.OK)
         .json({ msg: "Password updated successfully" });
     } else if (
-      user.passwordTokenExpirationDate &&
+      user.passwordTokenExpirationDate !== null &&
       user.passwordTokenExpirationDate < currentDate
     ) {
       throw new CustomErrors.BadRequestError(
