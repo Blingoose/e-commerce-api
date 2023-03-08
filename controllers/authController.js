@@ -266,21 +266,14 @@ const authControllers = {
       .json({ msg: "Please check your email for reset password link" });
   }),
 
-  resetPasswordPage: asyncWrapper(async (req, res, next) => {
-    const urlSearchParams = new URLSearchParams(req.query);
-    const email = urlSearchParams.get("email");
-    const token = urlSearchParams.get("token");
-    let emailBody;
-
-    const emailTemplate = fs.readFileSync(
-      path.resolve(__dirname, "../public/reset-password.html"),
-      "utf-8"
+  resetPasswordPage: (req, res) => {
+    const emailTemplate = path.resolve(
+      __dirname,
+      "../public/reset-password.html"
     );
-    emailBody = emailTemplate.replace("{{email}}", email);
-    emailBody = emailBody.replace("{{token}}", token);
 
-    res.send(emailBody);
-  }),
+    res.sendFile(emailTemplate);
+  },
 
   resetPassword: asyncWrapper(async (req, res, next) => {
     const { email, password, token } = req.body;
@@ -306,7 +299,7 @@ const authControllers = {
       );
     }
 
-    if (user?.passwordToken == "") {
+    if (user?.passwordToken === null) {
       throw new CustomErrors.BadRequestError(
         "You've already submitted a new password. Use 'forgot password' to repeat the process."
       );
@@ -320,8 +313,8 @@ const authControllers = {
       user.passwordTokenExpirationDate > currentDate
     ) {
       user.password = password;
-      user.passwordToken = "";
-      user.passwordTokenExpirationDate = "";
+      user.passwordToken = null;
+      user.passwordTokenExpirationDate = null;
       await user.save();
 
       res.status(StatusCodes.OK).json({ msg: "Password updated successfully" });
