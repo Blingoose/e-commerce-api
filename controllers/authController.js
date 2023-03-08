@@ -297,21 +297,14 @@ const authControllers = {
       throw new CustomErrors.BadRequestError("Invalid token");
     }
 
-    if (user?.passwordToken === "") {
-      throw new CustomErrors.BadRequestError(
-        "You've already submitted a new password. Use 'forgot password' to repeat the process."
-      );
-    }
-
     // Update the user's password in the database
-
     const currentDate = new Date();
     if (
       user.passwordToken === token &&
       user.passwordTokenExpirationDate > currentDate
     ) {
       user.password = password;
-      user.passwordToken = "";
+      user.passwordToken = undefined;
       user.passwordTokenExpirationDate = undefined;
       await user.save();
 
@@ -320,7 +313,7 @@ const authControllers = {
         .json({ msg: "Password updated successfully" });
     } else if (user.passwordTokenExpirationDate < currentDate) {
       throw new CustomErrors.BadRequestError(
-        "This link is no longer valid. Repeat the process again"
+        "Token is no longer valid. Repeat the process again"
       );
     } else {
       throw new CustomErrors.BadRequestError("Invalid token");
