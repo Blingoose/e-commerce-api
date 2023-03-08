@@ -18,6 +18,7 @@ import mongoSanitize from "express-mongo-sanitize";
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 import helmet from "helmet";
+import crypto from "crypto";
 // import morgan from "morgan";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -32,13 +33,22 @@ cloudinary.config({
 const server = express();
 server.set("trust proxy", 1);
 
-// for security purposes
+// security middlewares
+
 server.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 60,
   })
 );
+
+// Generate nonce value
+// const addNonce = (req, res, next) => {
+//   res.locals.nonce = crypto.randomBytes(16).toString("base64");
+//   next();
+// };
+// server.use(addNonce);
+
 server.use(helmet());
 server.use(cors());
 server.use(xss());
