@@ -32,7 +32,16 @@ form.addEventListener("submit", async (e) => {
     repeatPassword.value = "";
     checkValidity();
     return;
+  } else {
+    message.innerText = "Loading....";
   }
+
+  if (form.dataset.submitting === "true") {
+    // if form is already being submitted, do nothing
+    return;
+  }
+
+  form.dataset.submitting = "true"; // set submitting flag
 
   const urlParams = new URLSearchParams(window.location.search);
   const email = urlParams.get("email");
@@ -50,6 +59,8 @@ form.addEventListener("submit", async (e) => {
     },
     body: JSON.stringify(data),
   });
+
+  form.dataset.submitting = "false"; // unset submitting flag
 
   const result = await response.json();
   message.innerText = Object.values(result);
