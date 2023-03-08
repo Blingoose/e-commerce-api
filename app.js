@@ -33,8 +33,7 @@ cloudinary.config({
 const server = express();
 server.set("trust proxy", 1);
 
-// security middlewares
-
+// ----- security middlewares -----
 server.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -43,18 +42,29 @@ server.use(
 );
 
 // Generate nonce value
-// const addNonce = (req, res, next) => {
-//   res.locals.nonce = crypto.randomBytes(16).toString("base64");
-//   next();
-// };
-// server.use(addNonce);
+const addNonce = (req, res, next) => {
+  res.locals.nonce = crypto.randomBytes(16).toString("base64");
+  next();
+};
+server.use(addNonce);
 
-server.use(helmet());
+//using Content-Security-Policy header to mitigate cross-site scripting (XSS) attacks.
+server.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", (req, res) => `'nonce-${res.locals.nonce}'`],
+        styleSrc: ["'self'", (req, res) => `'nonce-${res.locals.nonce}'`],
+      },
+    },
+  })
+);
 server.use(cors());
 server.use(xss());
 server.use(mongoSanitize());
 
-// application specific middleware
+// ----- application specific middleware -----
 // server.use(morgan("tiny"));  //// for testing
 server.use(express.json());
 server.use(fileUpload({ useTempFiles: true }));
@@ -66,14 +76,14 @@ server.use("/api/v1", express.static(__dirname + "/public"));
 //base route
 const baseRoute = "/api/v1";
 
-// routes
+// ----- routes -----
 server.use(baseRoute + "/auth", authRouter);
 server.use(baseRoute + "/users", userRouter);
 server.use(baseRoute + "/products", productRouter);
 server.use(baseRoute + "/reviews", reviewRouter);
 server.use(baseRoute + "/orders", orderRouter);
 
-// error handler & not found middleware
+// ----- error handler & not found middleware -----
 server.use(notFoundRoute);
 server.use(errorHandlerMiddleware);
 
