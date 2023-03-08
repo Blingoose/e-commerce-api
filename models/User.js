@@ -86,12 +86,12 @@ const UserSchema = new mongoose.Schema({
 
   passwordToken: {
     type: String,
-    default: null,
+    default: undefined,
   },
 
   passwordTokenExpirationDate: {
     type: Date,
-    default: null,
+    default: undefined,
   },
 });
 

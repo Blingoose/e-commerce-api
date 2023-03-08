@@ -312,16 +312,13 @@ const authControllers = {
     ) {
       user.password = password;
       user.passwordToken = "";
-      user.passwordTokenExpirationDate = "";
+      user.passwordTokenExpirationDate = undefined;
       await user.save();
 
       return res
         .status(StatusCodes.OK)
         .json({ msg: "Password updated successfully" });
-    } else if (
-      !user.passwordToken &&
-      user.passwordTokenExpirationDate < currentDate
-    ) {
+    } else if (user.passwordTokenExpirationDate < currentDate) {
       throw new CustomErrors.BadRequestError(
         "This link is no longer valid. Repeat the process again"
       );
