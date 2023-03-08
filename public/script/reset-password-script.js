@@ -1,32 +1,47 @@
-const form = document.querySelector("#reset-password-form");
+let form = document.querySelector("#reset-password-form");
+const submitButton = document.querySelector(".submit");
+const message = document.querySelector(".message");
+let password = document.querySelector("#password");
+let repeatPassword = document.querySelector("#repeat-password");
+let timeoutId;
+
+function checkValidity() {
+  if (
+    password.value.trim().length > 0 &&
+    repeatPassword.value.trim().length > 0
+  ) {
+    submitButton.disabled = false;
+  } else {
+    submitButton.disabled = true;
+  }
+}
+
+password.addEventListener("input", checkValidity);
+repeatPassword.addEventListener("input", checkValidity);
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  let timeoutId;
-  const message = document.querySelector(".message");
-  const email = document.querySelector("#email").value;
-  const token = document.querySelector("#token").value;
-  const password = document.querySelector("#password").value;
-  const repeatPassword = document.querySelector("#repeat-password").value;
+  clearTimeout(timeoutId);
+  timeoutId = setTimeout(() => {
+    message.innerText = "";
+  }, 3000);
 
-  if (password !== repeatPassword) {
+  if (password.value !== repeatPassword.value) {
     message.innerText = "Passwords do not match!";
+    password.value = "";
+    repeatPassword.value = "";
+    checkValidity();
     return;
   }
 
-  if (form.dataset.submitting === "true") {
-    // if form is already being submitted, do nothing
-    return;
-  }
-
-  form.dataset.submitting = "true"; // set submitting flag
-
-  const data = { email, password, token };
+  const urlParams = new URLSearchParams(window.location.search);
+  const email = urlParams.get("email");
+  const token = urlParams.get("token");
+  const data = { email, password: password.value, token };
 
   const dynamicURL = `${window.location.protocol}//${window.location.hostname}${
     window.location.port ? ":" + window.location.port : ""
   }/api/v1/auth/reset-password`;
-
-  console.log(dynamicURL);
 
   const response = await fetch(dynamicURL, {
     method: "POST",
@@ -36,15 +51,9 @@ form.addEventListener("submit", async (e) => {
     body: JSON.stringify(data),
   });
 
-  form.dataset.submitting = "false"; // unset submitting flag
-
   const result = await response.json();
   message.innerText = Object.values(result);
-  password.innerText = "";
-  repeatPassword.innerText = "";
-
-  clearTimeout(timeoutId);
-  timeoutId = setTimeout(() => {
-    message.innerText = "";
-  }, 3000);
+  password.value = "";
+  repeatPassword.value = "";
+  checkValidity();
 });
