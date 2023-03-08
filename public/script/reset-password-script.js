@@ -33,6 +33,7 @@ form.addEventListener("submit", async (e) => {
     checkValidity();
     return;
   } else {
+    clearTimeout(timeoutId);
     message.innerText = "Loading....";
   }
 
