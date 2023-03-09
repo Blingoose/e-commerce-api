@@ -60,13 +60,17 @@ form.addEventListener("submit", async (e) => {
   }/api/v1/auth/reset-password`;
 
   try {
-    const response = await axios.post(dynamicURL, data, {
+    const response = await fetch(dynamicURL, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      body: JSON.stringify(data),
     });
 
-    const result = response.data;
+    form.dataset.submitting = "false"; // unset submitting flag
+
+    const result = await response.json();
     message.innerText = Object.values(result);
     password.value = "";
     repeatPassword.value = "";
