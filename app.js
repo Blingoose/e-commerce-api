@@ -33,6 +33,13 @@ cloudinary.config({
 });
 
 const server = express();
+const addNonce = (req, res, next) => {
+  res.locals.nonce = crypto.randomBytes(16).toString("base64");
+  next();
+};
+
+server.use(addNonce);
+
 server.set("trust proxy", 1);
 
 // ----- security middlewares -----
@@ -43,23 +50,12 @@ server.use(
   })
 );
 
-const addNonce = (req, res, next) => {
-  res.locals.nonce = crypto.randomBytes(16).toString("base64");
-  res.setHeader(
-    "Content-Security-Policy",
-    `default-src 'self'; script-src 'self' 'nonce-${res.locals.nonce}'; style-src 'self' 'nonce-${res.locals.nonce}'`
-  );
-  next();
-};
-
-server.use(addNonce);
 server.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", (req, res) => `'nonce-${res.locals.nonce}'`],
-        styleSrc: ["'self'", (req, res) => `'nonce-${res.locals.nonce}'`],
       },
     },
   })
@@ -79,8 +75,8 @@ server.use(cookieParser(process.env.JWT_SECRET));
 server.use("/api/v1", express.static(__dirname + "/public"));
 
 // set up ejs for rendering html
-server.engine("html", ejs.renderFile);
-server.set("view engine", "html");
+server.engine("ejs", ejs.renderFile);
+server.set("view engine", "ejs");
 server.set("views", path.join(__dirname, "public"));
 
 //base route
