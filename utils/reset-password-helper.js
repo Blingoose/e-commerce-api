@@ -22,7 +22,11 @@ const resetPasswordHandler = {
 
     const user = await User.findOne({ email, passwordToken: token });
 
-    if (!user || !user.passwordTokenExpirationDate) {
+    if (
+      !user ||
+      !user.passwordTokenExpirationDate ||
+      user.passwordTokenExpirationDate < new Date()
+    ) {
       // Redirect to error page if invalid user or expired token
       throw new CustomErrors.BadRequestError("This link is no longer valid");
     }
@@ -34,8 +38,8 @@ const resetPasswordHandler = {
 
   resetPasswordPage: asyncWrapper(async (req, res, next) => {
     if (!res.locals.validResetToken) {
-      // Redirect to error page if valid reset token not found
-      throw new CustomErrors.BadRequestError("BlaBlaBla");
+      // a safeguard check
+      throw new CustomErrors.BadRequestError("This link is no longer valid");
     }
 
     const emailTemplate = path.resolve(
