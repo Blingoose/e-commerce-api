@@ -65,7 +65,10 @@ const authControllers = {
     });
 
     const emailTemplate = fs.readFileSync(
-      path.resolve(__dirname, "../email/verification-email-template.html"),
+      path.resolve(
+        __dirname,
+        "../email-templates/verification-email-template.html"
+      ),
       "utf-8"
     );
 
@@ -240,7 +243,10 @@ const authControllers = {
       await user.save();
 
       const emailTemplate = fs.readFileSync(
-        path.resolve(__dirname, "../email/reset-password-email-template.html"),
+        path.resolve(
+          __dirname,
+          "../email-templates/reset-password-email-template.html"
+        ),
         "utf-8"
       );
 
