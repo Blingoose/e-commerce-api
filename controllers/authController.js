@@ -269,7 +269,7 @@ const authControllers = {
   resetPasswordPage: (req, res) => {
     const emailTemplate = path.resolve(
       __dirname,
-      "../public/reset-password.html"
+      "../public/reset-password.ejs"
     );
 
     res.render(emailTemplate, { nonce: res.locals.nonce });
