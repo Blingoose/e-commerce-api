@@ -5,8 +5,9 @@
 Welcome to the E-Commerce API, a RESTful API that allows you to manage various aspects of an e-commerce platform. With this API, you can perform actions such as:
 
 - Registering a user
-- Verify user account via email
+- Verifying user account via email
 - Logging in and out
+- Reseting forgotten password
 - Retrieving details about users
 - Creating and managing products
 - Reviewing products
@@ -58,9 +59,11 @@ https://documenter.getpostman.com/view/24129958/2s93CEvFpZ
 - `POST /auth/login`: Login as a registered user (verified accounts only)
 - `DELETE /auth/logout`: Log out of the current session
 - `GET /auth/verify-email/?email={useremail}&verificationToken={verificationToken}`: Verify registered account (required)
+- `POST /auth/forgot-password`: Receive an email to reset a forgotten password
+- `POST /auth/reset-password`: Reset a forgotten password
 
 **Notice - 1**
-When registering, you will receive a verification link via email. Please use real e-mail address or you won't be able to log-in. Emails are used for a one time verification process, nothing else.
+When registering, you will receive a verification link via email. Please use real e-mail address or you won't be able to log-in. Emails are used for a one time verification process and resetting forgotten password, nothing else.
 
 **Notice - 2**
 If you decide to verify in the postman, make sure to iclude Content-Type as application/json in headers.
