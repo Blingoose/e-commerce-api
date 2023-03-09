@@ -3,6 +3,7 @@ import { fileURLToPath } from "url";
 import express from "express";
 import connectDB from "./db/connectDB.js";
 import errorHandlerMiddleware from "./middleware/error-handler-middleware.js";
+import resetPasswordHandler from "./utils/reset-password-helper.js";
 import notFoundRoute from "./middleware/not-found-middleware.js";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
@@ -19,9 +20,6 @@ import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import crypto from "crypto";
-import ejs from "ejs";
-import path from "path";
-// import morgan from "morgan";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
@@ -66,20 +64,14 @@ server.use(xss());
 server.use(mongoSanitize());
 
 // ----- application specific middleware -----
-// server.use(morgan("tiny"));  //// for testing
 server.use(express.json());
 server.use(fileUpload({ useTempFiles: true }));
 server.use(cookieParser(process.env.JWT_SECRET));
 
 // home page
-server.use("/api/v1", express.static(__dirname + "/public"));
+server.use("/api/v1", express.static(__dirname + "public"));
 
-// set up ejs for rendering html
-server.engine("ejs", ejs.renderFile);
-server.set("view engine", "ejs");
-server.set("views", path.join(__dirname, "public"));
-
-//base route
+// base route
 const baseRoute = "/api/v1";
 
 // ----- routes -----
@@ -88,6 +80,13 @@ server.use(baseRoute + "/users", userRouter);
 server.use(baseRoute + "/products", productRouter);
 server.use(baseRoute + "/reviews", reviewRouter);
 server.use(baseRoute + "/orders", orderRouter);
+
+// reset password route
+server.get(
+  "/api/v1/auth/reset-page",
+  resetPasswordHandler.requireResetToken,
+  resetPasswordHandler.resetPasswordPage
+);
 
 // ----- error handler & not found middleware -----
 server.use(notFoundRoute);
