@@ -266,15 +266,6 @@ const authControllers = {
       .json({ msg: "Please check your email for reset password link" });
   }),
 
-  resetPasswordPage: (req, res) => {
-    const emailTemplate = path.resolve(
-      __dirname,
-      "../public/reset-password.ejs"
-    );
-
-    res.render(emailTemplate, { nonce: res.locals.nonce });
-  },
-
   resetPassword: asyncWrapper(async (req, res, next) => {
     const { email, password, token } = req.body;
     if (!token || !email || !password) {
