@@ -19,6 +19,8 @@ import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import crypto from "crypto";
+import ejs from "ejs";
+import path from "path";
 // import morgan from "morgan";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -41,7 +43,28 @@ server.use(
   })
 );
 
-server.use(helmet());
+const addNonce = (req, res, next) => {
+  res.locals.nonce = crypto.randomBytes(16).toString("base64");
+  res.setHeader(
+    "Content-Security-Policy",
+    `default-src 'self'; script-src 'self' 'nonce-${res.locals.nonce}'; style-src 'self' 'nonce-${res.locals.nonce}'`
+  );
+  next();
+};
+
+server.use(addNonce);
+server.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", (req, res) => `'nonce-${res.locals.nonce}'`],
+        styleSrc: ["'self'", (req, res) => `'nonce-${res.locals.nonce}'`],
+      },
+    },
+  })
+);
+
 server.use(cors());
 server.use(xss());
 server.use(mongoSanitize());
@@ -54,6 +77,11 @@ server.use(cookieParser(process.env.JWT_SECRET));
 
 // home page
 server.use("/api/v1", express.static(__dirname + "/public"));
+
+// set up ejs for rendering html
+server.engine("html", ejs.renderFile);
+server.set("view engine", "html");
+server.set("views", path.join(__dirname, "public"));
 
 //base route
 const baseRoute = "/api/v1";

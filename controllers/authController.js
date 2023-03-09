@@ -272,7 +272,7 @@ const authControllers = {
       "../public/reset-password.html"
     );
 
-    res.sendFile(emailTemplate);
+    res.render(emailTemplate, { nonce: res.locals.nonce });
   },
 
   resetPassword: asyncWrapper(async (req, res, next) => {
