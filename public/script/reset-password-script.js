@@ -1,5 +1,3 @@
-import axios from "../../node_modules/axios/dist/axios.min.js";
-
 const form = document.querySelector("#reset-password-form");
 const submitButton = document.querySelector(".submit");
 const message = document.querySelector(".message");
