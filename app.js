@@ -41,25 +41,15 @@ server.use(
   })
 );
 
-// Generate nonce value
-const addNonce = (req, res, next) => {
-  res.locals.nonce = crypto.randomBytes(16).toString("base64");
+server.use(function (req, res, next) {
+  res.setHeader(
+    "Content-Security-Policy",
+    "script-src 'self' https://cdnjs.cloudflare.com"
+  );
   next();
-};
-server.use(addNonce);
+});
 
-//using Content-Security-Policy header to mitigate cross-site scripting (XSS) attacks.
-server.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", (req, res) => `'nonce-${res.locals.nonce}'`],
-        styleSrc: ["'self'", (req, res) => `'nonce-${res.locals.nonce}'`],
-      },
-    },
-  })
-);
+server.use(helmet());
 server.use(cors());
 server.use(xss());
 server.use(mongoSanitize());
