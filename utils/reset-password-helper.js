@@ -22,11 +22,7 @@ const resetPasswordHandler = {
 
     const user = await User.findOne({ email, passwordToken: token });
 
-    if (
-      !user ||
-      !user.passwordTokenExpirationDate ||
-      user.passwordTokenExpirationDate < new Date()
-    ) {
+    if (!user || !user.passwordTokenExpirationDate) {
       // Redirect to error page if invalid user or expired token
       throw new CustomErrors.BadRequestError("This link is no longer valid");
     }
