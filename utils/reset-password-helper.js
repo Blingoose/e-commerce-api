@@ -6,7 +6,7 @@ import User from "../models/User.js";
 import asyncWrapper from "../middleware/asyncWrapper.js";
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
-const resetPasswordHandler = {
+const resetPasswordHelper = {
   requireResetToken: asyncWrapper(async (req, res, next) => {
     const { email, token } = req.query;
 
@@ -51,4 +51,4 @@ const resetPasswordHandler = {
   }),
 };
 
-export default resetPasswordHandler;
+export default resetPasswordHelper;

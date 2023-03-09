@@ -3,7 +3,7 @@ import { fileURLToPath } from "url";
 import express from "express";
 import connectDB from "./db/connectDB.js";
 import errorHandlerMiddleware from "./middleware/error-handler-middleware.js";
-import resetPasswordHandler from "./utils/reset-password-helper.js";
+import resetPasswordHelper from "./utils/reset-password-helper.js";
 import notFoundRoute from "./middleware/not-found-middleware.js";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
@@ -84,8 +84,8 @@ server.use(baseRoute + "/orders", orderRouter);
 // reset password route
 server.get(
   "/api/v1/auth/reset-page",
-  resetPasswordHandler.requireResetToken,
-  resetPasswordHandler.resetPasswordPage
+  resetPasswordHelper.requireResetToken,
+  resetPasswordHelper.resetPasswordPage
 );
 
 // ----- error handler & not found middleware -----
