@@ -20,6 +20,7 @@ import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import crypto from "crypto";
+import session from "express-session";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
@@ -67,6 +68,13 @@ server.use(mongoSanitize());
 server.use(express.json());
 server.use(fileUpload({ useTempFiles: true }));
 server.use(cookieParser(process.env.JWT_SECRET));
+server.use(
+  session({
+    secret: process.env.SESSION_KEY,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 // home page
 server.use("/api/v1", express.static(__dirname + "public"));
@@ -87,6 +95,9 @@ server.get(
   resetPasswordHelper.requireResetToken,
   resetPasswordHelper.resetPasswordPage
 );
+
+// route for the success page that applies the requireResetSuccess middleware
+server.get("/api/v1/auth/success-page", resetPasswordHelper.resetSuccessPage);
 
 // ----- error handler & not found middleware -----
 server.use(notFoundRoute);
