@@ -96,7 +96,7 @@ server.get(
   resetPasswordHelper.resetPasswordPage
 );
 
-// route for the success page that applies the requireResetSuccess middleware
+// route for the reset password success page
 server.get("/api/v1/auth/success-page", resetPasswordHelper.resetSuccessPage);
 
 // ----- error handler & not found middleware -----
