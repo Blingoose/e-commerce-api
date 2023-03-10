@@ -42,13 +42,29 @@ const resetPasswordHelper = {
       throw new CustomErrors.BadRequestError("This link is no longer valid");
     }
 
-    const emailTemplate = path.resolve(
+    const resetPage = path.resolve(
       __dirname,
       "../public/views/reset-password.ejs"
     );
 
-    res.render(emailTemplate, { nonce: res.locals.nonce });
+    res.render(resetPage, { nonce: res.locals.nonce });
   }),
+
+  resetSuccessPage: (req, res, next) => {
+    if (req.session.resetSuccess) {
+      const successPage = path.resolve(
+        __dirname,
+        "../public/success-page.html"
+      );
+      req.session.destroy();
+      res.cookie("connect.sid", "session-over", {
+        httpOnly: true,
+        expires: new Date(Date.now()),
+      });
+      return res.sendFile(successPage);
+    }
+    throw new CustomErrors.BadRequestError("Session is over!");
+  },
 };
 
 export default resetPasswordHelper;
