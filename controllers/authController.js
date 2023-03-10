@@ -305,6 +305,8 @@ const authControllers = {
       user.passwordTokenExpirationDate = undefined;
       await user.save();
 
+      // Set the resetSuccess flag in the session
+      req.session.resetSuccess = true;
       return res
         .status(StatusCodes.OK)
         .json({ msg: "Password updated successfully" });
