@@ -51,8 +51,8 @@ const authControllers = {
     const { name, email, password, username } = req.body;
 
     //the first created account will be an admin.
-    const isFirstAccount = (await User.countDocuments({})) === 0;
-    const role = isFirstAccount ? "admin" : "user";
+    const isFirstUser = (await User.countDocuments({})) === 0;
+    const role = isFirstUser ? "admin" : "user";
 
     const verificationToken = crypto.randomBytes(40).toString("hex");
     await User.create({
@@ -83,7 +83,7 @@ const authControllers = {
     //create mail via sendgrid.
     const msg = {
       to: `${email}`,
-      from: "andy.katov@blingoose.net",
+      from: process.env.SENDER_EMAIL,
       subject: "E-commerce API account verification",
       html: emailBody,
     };
@@ -112,18 +112,20 @@ const authControllers = {
     }
 
     const user = await User.findOne({ email });
-    const message = { msg: "Verification failed!" };
+    const failedVerificationMessage = { msg: "Verification failed!" };
     if (!user) {
-      return sendResponse(req, res, message);
+      return sendResponse(req, res, failedVerificationMessage);
     }
 
     if (user.isVerified) {
       const isAlreadyVerified = true;
-      const message = { msg: "Account has already been verified!" };
+      const alreadyVerifiedMessage = {
+        msg: "Account has already been verified!",
+      };
       return sendResponse(
         req,
         res,
-        message,
+        alreadyVerifiedMessage,
         user.isVerified,
         isAlreadyVerified
       );
@@ -136,12 +138,16 @@ const authControllers = {
       const msg = user.isVerified
         ? "You've successfully verified the account!"
         : "Verification Failed!";
-      const message = { msg };
+      const successOrFailVerificatoinMessage = { msg };
 
-      return sendResponse(req, res, message, user.isVerified);
+      return sendResponse(
+        req,
+        res,
+        successOrFailVerificatoinMessage,
+        user.isVerified
+      );
     } else {
-      const message = { msg: "Verification failed!" };
-      return sendResponse(req, res, message, user.isVerified);
+      return sendResponse(req, res, failedVerificationMessage, user.isVerified);
     }
   }),
 
@@ -260,7 +266,7 @@ const authControllers = {
 
       const msg = {
         to: `${email}`,
-        from: "andy.katov@blingoose.net",
+        from: process.env.SENDER_EMAIL,
         subject: "E-commerce API Reset Password",
         html: emailBody,
       };
@@ -308,10 +314,14 @@ const authControllers = {
       // Set the resetSuccess flag in the session
       req.session.resetSuccess = true;
       req.session.email = email;
+
       return res
         .status(StatusCodes.OK)
         .json({ msg: "Password updated successfully" });
-    } else if (user.passwordTokenExpirationDate < currentDate) {
+    } else if (
+      user.passwordTokenExpirationDate &&
+      user.passwordTokenExpirationDate < currentDate
+    ) {
       throw new CustomErrors.BadRequestError(
         "Token is no longer valid. Repeat the process again"
       );
