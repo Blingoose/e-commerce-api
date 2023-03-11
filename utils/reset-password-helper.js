@@ -56,7 +56,7 @@ const resetPasswordHelper = {
         __dirname,
         "../public/success-page.html"
       );
-      req.session.destroy();
+      // req.session.destroy();
       res.cookie("connect.sid", "session-over", {
         httpOnly: true,
         expires: new Date(Date.now()),
