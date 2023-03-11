@@ -48,7 +48,7 @@ server.set("trust proxy", 1);
 // global rate limiter
 const fifteenMinutes = 15 * 60 * 1000;
 const rateLimitErrorMessage =
-  "Too many connection attempts, please comeback later";
+  "Too many connection attempts, please come back later";
 server.use(rateLimiter(fifteenMinutes, 40, rateLimitErrorMessage));
 
 server.use(
