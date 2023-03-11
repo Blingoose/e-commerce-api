@@ -12,7 +12,7 @@ import productRouter from "./routes/productRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
 import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
-import { rateLimit } from "express-rate-limit";
+import { rateLimiter } from "./utils/utils.js";
 import xss from "xss-clean";
 import cors from "cors";
 import mongoSanitize from "express-mongo-sanitize";
@@ -44,12 +44,12 @@ server.use(addNonce);
 server.set("trust proxy", 1);
 
 // ----- security middlewares -----
-server.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 60,
-  })
-);
+
+// global rate limiter
+const fifteenMinutes = 15 * 60 * 1000;
+const rateLimitErrorMessage =
+  "Too many connection attempts, please comeback later";
+server.use(rateLimiter(fifteenMinutes, 40, rateLimitErrorMessage));
 
 server.use(
   helmet({
