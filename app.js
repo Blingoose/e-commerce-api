@@ -21,6 +21,8 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import crypto from "crypto";
 import session from "express-session";
+import { default as connectMongoDBSession } from "connect-mongodb-session";
+const MongoDBStore = connectMongoDBSession(session);
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
@@ -68,11 +70,24 @@ server.use(mongoSanitize());
 server.use(express.json());
 server.use(fileUpload({ useTempFiles: true }));
 server.use(cookieParser(process.env.JWT_SECRET));
+
+// ----- session store -----
+const store = new MongoDBStore({
+  uri: "mongodb://localhost:27017/mydatabase",
+  collection: "sessions",
+});
+
+// Catch errors
+store.on("error", (error) => {
+  console.log(error);
+});
+
 server.use(
   session({
     secret: process.env.SESSION_KEY,
     resave: false,
     saveUninitialized: false,
+    store: store,
   })
 );
 
