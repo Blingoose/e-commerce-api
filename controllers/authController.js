@@ -307,6 +307,7 @@ const authControllers = {
 
       // Set the resetSuccess flag in the session
       req.session.resetSuccess = true;
+      req.session.email = email;
       return res
         .status(StatusCodes.OK)
         .json({ msg: "Password updated successfully" });
