@@ -71,6 +71,26 @@ server.use(express.json());
 server.use(fileUpload({ useTempFiles: true }));
 server.use(cookieParser(process.env.JWT_SECRET));
 
+// ----- session store -----
+const store = new MongoDBStore({
+  uri: process.env.MONGO_URI,
+  collection: "sessions",
+});
+
+// Catch errors
+store.on("error", (error) => {
+  console.log(error);
+});
+
+server.use(
+  session({
+    secret: process.env.SESSION_KEY,
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+  })
+);
+
 // home page
 server.use("/api/v1", express.static(__dirname + "public"));
 
@@ -102,26 +122,6 @@ const PORT = process.env.PORT || 8000;
 const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);
-
-    // ----- session store -----
-    const store = new MongoDBStore({
-      uri: process.env.MONGO_URI,
-      collection: "sessions",
-    });
-
-    // Catch errors
-    store.on("error", (error) => {
-      console.log(error);
-    });
-
-    server.use(
-      session({
-        secret: process.env.SESSION_KEY,
-        resave: false,
-        saveUninitialized: false,
-        store: store,
-      })
-    );
 
     http.createServer(server).listen(PORT, function () {
       console.info("Server is running on:", this.address());
