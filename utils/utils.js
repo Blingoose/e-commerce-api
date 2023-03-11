@@ -1,7 +1,4 @@
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
+import rateLimit from "express-rate-limit";
 
 export const validatorMinMax = (validationType, validationValue) => {
   return {
@@ -64,5 +61,18 @@ export const removeTokensFromCookies = (res) => {
   res.cookie("refreshToken", "logout", {
     httpOnly: true,
     expires: new Date(Date.now()),
+  });
+};
+
+export const rateLimiter = (
+  durationInMilliseconds,
+  maxConnections,
+  errorMessage
+) => {
+  return rateLimit({
+    windowMs: durationInMilliseconds,
+    max: maxConnections,
+    message: errorMessage,
+    headers: true,
   });
 };
