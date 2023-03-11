@@ -73,7 +73,7 @@ server.use(cookieParser(process.env.JWT_SECRET));
 
 // ----- session store -----
 const store = new MongoDBStore({
-  uri: "mongodb://localhost:27017/mydatabase",
+  uri: process.env.MONGO_URI,
   collection: "sessions",
 });
 
