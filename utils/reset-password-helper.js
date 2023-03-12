@@ -1,10 +1,17 @@
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import CustomErrors from "../errors/error-index.js";
 import validator from "validator";
 import User from "../models/User.js";
 import asyncWrapper from "../middleware/asyncWrapper.js";
+import { StatusCodes } from "http-status-codes";
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
+
+const errorPageTemplate = fs.readFileSync(
+  path.resolve(__dirname, "../public/error-page.html"),
+  "utf-8"
+);
 
 const resetPasswordHelper = {
   requireResetToken: asyncWrapper(async (req, res, next) => {
@@ -12,12 +19,20 @@ const resetPasswordHelper = {
 
     if (!email || !token) {
       // Redirect to error page if email or token not provided
-      throw new CustomErrors.BadRequestError("Wrong url");
+      const missingQueryParmeters = errorPageTemplate.replace(
+        "{{errorCause}}",
+        "missing url query parameters `token` or `email`"
+      );
+      return res.status(StatusCodes.BAD_REQUEST).send(missingQueryParmeters);
     }
 
     if (!validator.isEmail(email)) {
       // Redirect to error page if invalid email provided
-      throw new CustomErrors.BadRequestError("Email is not valid");
+      const invalidEmailAddress = errorPageTemplate.replace(
+        "{{errorCause}}",
+        "invalid email address"
+      );
+      return res.status(StatusCodes.BAD_REQUEST).send(invalidEmailAddress);
     }
 
     const user = await User.findOne({ email, passwordToken: token });
@@ -28,7 +43,11 @@ const resetPasswordHelper = {
       user.passwordTokenExpirationDate < new Date()
     ) {
       // Redirect to error page if invalid user or expired token
-      throw new CustomErrors.BadRequestError("This link is no longer valid");
+      const invalidToken = errorPageTemplate.replace(
+        "{{errorCause}}",
+        "token is no longer valid bacause the session has expired"
+      );
+      return res.status(StatusCodes.BAD_REQUEST).send(invalidToken);
     }
 
     // Set a flag on the response object to indicate valid reset token found
@@ -39,7 +58,11 @@ const resetPasswordHelper = {
   resetPasswordPage: asyncWrapper(async (req, res, next) => {
     if (!res.locals.validResetToken) {
       // a safeguard check
-      throw new CustomErrors.BadRequestError("This link is no longer valid");
+      const invalidToken = errorPageTemplate.replace(
+        "{{errorCause}}",
+        "token is no longer valid bacause the session has expired"
+      );
+      return res.status(StatusCodes.BAD_REQUEST).send(invalidToken);
     }
 
     const resetPage = path.resolve(
@@ -63,7 +86,11 @@ const resetPasswordHelper = {
       });
       return res.sendFile(successPage);
     }
-    throw new CustomErrors.BadRequestError("Session is over!");
+    const invalidToken = errorPageTemplate.replace(
+      "{{errorCause}}",
+      "access denied due to wrong permission"
+    );
+    return res.status(StatusCodes.BAD_REQUEST).send(invalidToken);
   },
 };
 
