@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="/api/v1/css/error-page.css" />
+    <title>E-Commerce API Error Page</title>
+  </head>
+  <body>
+    <div id="top-box">
+      <img
+        src="/api/v1/img/look-magnifying-glass.svg"
+        alt="Look magnifying glass"
+      />
+    </div>
+    <div id="bottom-box">
+      <h1>Error (4xx)</h1>
+      <p class="not-found">We can't find the page you're looking for.</p>
+      <p class="cause">Possible error cause: {{errorCause}}</p>
+      <p>Here are a few links that may be helpful:</p>
+      <ul>
+        <li>
+          <a href="https://github.com/Blingoose/e_commerce_api"> Github</a>
+        </li>
+        <li>
+          <a href="https://documenter.getpostman.com/view/24129958/2s93CEvFpZ">
+            Documentation
+          </a>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
