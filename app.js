@@ -2,6 +2,7 @@ import http from "http";
 import { fileURLToPath } from "url";
 import express from "express";
 import connectDB from "./db/connectDB.js";
+import sessionStore from "./utils/session-store.js";
 import errorHandlerMiddleware from "./middleware/error-handler-middleware.js";
 import resetPasswordHelper from "./utils/reset-password-helper.js";
 import notFoundRoute from "./middleware/not-found-middleware.js";
@@ -20,9 +21,6 @@ import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import crypto from "crypto";
-import session from "express-session";
-import { default as connectMongoDBSession } from "connect-mongodb-session";
-const MongoDBStore = connectMongoDBSession(session);
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
@@ -70,26 +68,7 @@ server.use(mongoSanitize());
 server.use(express.json());
 server.use(fileUpload({ useTempFiles: true }));
 server.use(cookieParser(process.env.JWT_SECRET));
-
-// ----- session store -----
-const store = new MongoDBStore({
-  uri: process.env.MONGO_URI,
-  collection: "sessions",
-});
-
-// Catch errors
-store.on("error", (error) => {
-  console.log(error);
-});
-
-server.use(
-  session({
-    secret: process.env.SESSION_KEY,
-    resave: false,
-    saveUninitialized: false,
-    store: store,
-  })
-);
+server.use(sessionStore());
 
 // home page
 server.use("/api/v1", express.static(__dirname + "public"));
