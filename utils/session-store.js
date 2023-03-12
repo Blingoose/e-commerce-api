@@ -18,6 +18,12 @@ const sessionStore = () => {
     resave: false,
     saveUninitialized: false,
     store: store,
+    cookie: {
+      maxAge: 60 * 60 * 1000, // expires in 1 hour
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      signed: true,
+    },
   });
 };
 
