@@ -97,6 +97,25 @@ const authControllers = {
   verifyEmail: asyncWrapper(async (req, res, next) => {
     const { verificationToken, email } = req.query;
 
+    if (
+      req.headers["accept"]?.toLowerCase().startsWith("text/html") &&
+      !req.session.isVerified
+    ) {
+      const user = await User.findOne({ email, verificationToken });
+      if (!user) {
+        const errorPageTemplate = fs.readFileSync(
+          path.resolve(__dirname, "../public/error-page.html"),
+          "utf-8"
+        );
+        const invalidToken = errorPageTemplate.replace(
+          "{{errorCause}}",
+          "The link is no longer valid"
+        );
+
+        return res.status(StatusCodes.BAD_REQUEST).send(invalidToken);
+      }
+    }
+
     if (!email) {
       throw new CustomErrors.UnauthorizedError("Must provide an email");
     }
@@ -111,8 +130,8 @@ const authControllers = {
       );
     }
 
-    const user = await User.findOne({ email });
     const failedVerificationMessage = { msg: "Verification failed!" };
+    const user = await User.findOne({ email });
     if (!user) {
       return sendResponse(req, res, failedVerificationMessage);
     }
@@ -134,6 +153,8 @@ const authControllers = {
       user.verified = Date.now();
       user.verificationToken = "";
       await user.save();
+      req.session.isVerified = true;
+      req.session.email = email;
 
       const msg = user.isVerified
         ? "You've successfully verified the account!"
