@@ -97,22 +97,18 @@ const authControllers = {
   verifyEmail: asyncWrapper(async (req, res, next) => {
     const { verificationToken, email } = req.query;
 
-    if (
-      req.headers["accept"]?.toLowerCase().startsWith("text/html") &&
-      !req.session.isVerified
-    ) {
-      const user = await User.findOne({ email, verificationToken });
-      if (!user) {
+    if (req.headers["accept"]?.toLowerCase().startsWith("text/html")) {
+      if (!email && !verificationToken) {
         const errorPageTemplate = fs.readFileSync(
           path.resolve(__dirname, "../public/error-page.html"),
           "utf-8"
         );
-        const invalidToken = errorPageTemplate.replace(
+        const accessDenied = errorPageTemplate.replace(
           "{{errorCause}}",
-          "The link is no longer valid"
+          "Access denied"
         );
 
-        return res.status(StatusCodes.BAD_REQUEST).send(invalidToken);
+        return res.status(StatusCodes.BAD_REQUEST).send(accessDenied);
       }
     }
 
