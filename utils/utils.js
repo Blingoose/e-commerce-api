@@ -76,7 +76,7 @@ export const rateLimiter = (
     message: errorMessage,
     headers: true,
     keyGenerator: (req) => {
-      return req.headers["x-forwarded-for"] || req.ip;
+      return req.headers["x-forwarded-for"] || req.socket.remoteAddress;
     },
   });
 };
