@@ -7,13 +7,17 @@ const authRouter = express.Router();
 
 const fifteenMinutes = 15 * 16 * 1000;
 const limitErrorMesage = "Too many attempts, try again later";
-const limitRetries = rateLimiter(fifteenMinutes, 3, limitErrorMesage);
+export const limitRetries = rateLimiter(fifteenMinutes, 3, limitErrorMesage);
 
 authRouter.post("/register", authControllers.register);
 authRouter.post("/login", authControllers.login);
 authRouter.delete("/logout", authenticateUser, authControllers.logout);
 authRouter.get("/verify-email", limitRetries, authControllers.verifyEmail);
 authRouter.post("/reset-password", limitRetries, authControllers.resetPassword);
-authRouter.post("/forgot-password", authControllers.forgotPassword);
+authRouter.post(
+  "/forgot-password",
+  limitRetries,
+  authControllers.forgotPassword
+);
 
 export default authRouter;

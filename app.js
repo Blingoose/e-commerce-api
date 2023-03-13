@@ -21,6 +21,7 @@ import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import crypto from "crypto";
+import { limitRetries } from "./routes/authRoutes.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
@@ -86,6 +87,7 @@ server.use(baseRoute + "/orders", orderRouter);
 // reset password route
 server.get(
   "/api/v1/auth/reset-page",
+  limitRetries,
   resetPasswordHelper.requireResetToken,
   resetPasswordHelper.resetPasswordPage
 );
