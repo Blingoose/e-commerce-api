@@ -75,9 +75,6 @@ export const rateLimiter = (
     max: maxConnections,
     message: errorMessage,
     headers: true,
-    keyGenerator: (req) => {
-      return req.headers["x-forwarded-for"] || req.socket.remoteAddress;
-    },
   });
 };
 

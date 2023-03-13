@@ -59,14 +59,6 @@ const resetPasswordHelper = {
   }),
 
   resetPasswordPage: asyncWrapper(async (req, res, next) => {
-    console.log(req.headers);
-    console.log("REQ HEADERS ENDS HERE");
-    console.log(req.socket.remoteAddress);
-    console.log("REQ SOCKET ENDS HERE");
-    console.log(req.headers["x-forwarded-for"]);
-    console.log("REQ X FORWARDED ENDS HERE");
-    console.log(req.headers["x-real-ip"]);
-    console.log("REQ X REAL IP ENDS HERE");
     if (!res.locals.validResetToken) {
       // a safeguard check
       const invalidToken = errorPageTemplate.replace(
