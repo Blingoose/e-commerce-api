@@ -5,7 +5,7 @@ import { rateLimiter } from "../utils/utils.js";
 
 const authRouter = express.Router();
 
-const fifteenMinutes = 15 * 16 * 1000;
+const fifteenMinutes = 15 * 60 * 1000;
 const limitErrorMesage = "Too many attempts, try again later";
 export const limitRetries = rateLimiter(fifteenMinutes, 3, limitErrorMesage);
 
