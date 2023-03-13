@@ -7,7 +7,7 @@ import Token from "../models/Token.js";
 import CustomErrors from "../errors/error-index.js";
 import { StatusCodes } from "http-status-codes";
 import jwtHandler from "../utils/jwt.js";
-import { removeTokensFromCookies } from "../utils/utils.js";
+import { removeTokensFromCookies, hashString } from "../utils/utils.js";
 import validator from "validator";
 import crypto from "crypto";
 import sendEmail from "../utils/sendEmail.js";
@@ -149,8 +149,6 @@ const authControllers = {
       user.verified = Date.now();
       user.verificationToken = "";
       await user.save();
-      req.session.isVerified = true;
-      req.session.email = email;
 
       const msg = user.isVerified
         ? "You've successfully verified the account!"
@@ -261,7 +259,7 @@ const authControllers = {
       const fiveMinutes = 1000 * 60 * 5;
       const passwordTokenExpirationDate = new Date(Date.now() + fiveMinutes);
 
-      user.passwordToken = passwordToken;
+      user.passwordToken = hashString(passwordToken);
       user.passwordTokenExpirationDate = passwordTokenExpirationDate;
       await user.save();
 
@@ -320,7 +318,7 @@ const authControllers = {
     // Update the user's password in the database
     const currentDate = new Date();
     if (
-      user.passwordToken === token &&
+      user.passwordToken === hashString(token) &&
       user.passwordTokenExpirationDate > currentDate
     ) {
       user.password = password;

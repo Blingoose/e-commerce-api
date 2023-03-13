@@ -1,4 +1,5 @@
 import rateLimit from "express-rate-limit";
+import crypto from "crypto";
 
 export const validatorMinMax = (validationType, validationValue) => {
   return {
@@ -76,3 +77,6 @@ export const rateLimiter = (
     headers: true,
   });
 };
+
+export const hashString = (string) =>
+  crypto.createHash("md5").update(string).digest("hex");

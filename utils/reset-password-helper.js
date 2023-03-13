@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
-import CustomErrors from "../errors/error-index.js";
+import { hashString } from "./utils.js";
 import validator from "validator";
 import User from "../models/User.js";
 import asyncWrapper from "../middleware/asyncWrapper.js";
@@ -35,7 +35,10 @@ const resetPasswordHelper = {
       return res.status(StatusCodes.BAD_REQUEST).send(invalidEmailAddress);
     }
 
-    const user = await User.findOne({ email, passwordToken: token });
+    const user = await User.findOne({
+      email,
+      passwordToken: hashString(token),
+    });
 
     if (
       !user ||
@@ -52,10 +55,12 @@ const resetPasswordHelper = {
 
     // Set a flag on the response object to indicate valid reset token found
     res.locals.validResetToken = true;
+    console.log(res.locals.validResetToken, "require-reset-token");
     next();
   }),
 
   resetPasswordPage: asyncWrapper(async (req, res, next) => {
+    console.log(res.locals.validResetToken, "reset-password-page");
     if (!res.locals.validResetToken) {
       // a safeguard check
       const invalidToken = errorPageTemplate.replace(
