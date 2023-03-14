@@ -65,6 +65,14 @@ export const removeTokensFromCookies = (res) => {
   });
 };
 
+function createKey(req) {
+  const ip = req.headers["x-forwarded-for"] || req.ip;
+  const userAgent = req.headers["user-agent"];
+  const headers = JSON.stringify(req.headers);
+  const str = `${ip}:${userAgent}:${headers}`;
+  return crypto.createHash("sha256").update(str).digest("hex");
+}
+
 export const rateLimiter = (
   durationInMilliseconds,
   maxConnections,
@@ -74,10 +82,8 @@ export const rateLimiter = (
     windowMs: durationInMilliseconds,
     max: maxConnections,
     message: errorMessage,
-    legacyHeaders: true,
-    standardHeaders: true,
+    keyGenerator: createKey,
   });
 };
-
 export const hashString = (string) =>
   crypto.createHash("md5").update(string).digest("hex");
