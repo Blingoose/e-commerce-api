@@ -40,7 +40,9 @@ const addNonce = (req, res, next) => {
 server.use(addNonce);
 
 server.set("trust proxy", 5);
-server.get("/ip", (request, response) => response.send(request.ip));
+server.get("/ip", (request, response) => {
+  response.send(request.headers["x-forwarder-for"]);
+});
 
 // ----- security middlewares -----
 
