@@ -54,7 +54,7 @@ const orderControllers = {
         );
       }
 
-      if (!Number.isInteger(item.amount) || item.amount < 1) {
+      if (!Number.isSafeInteger(Number(item.amount)) || item.amount < 1) {
         throw new CustomErrors.BadRequestError(
           "Amount must be a positive integer"
         );
