@@ -69,11 +69,8 @@ function createKey(req) {
   const ip = req.ip;
   const userAgent = req.headers["user-agent"];
   const str = `${ip}:${userAgent}`;
-
-  console.log(str);
-  const abc = crypto.createHash("sha256").update(str).digest("hex");
-  console.log(abc);
-  return abc;
+  const generatedHash = crypto.createHash("sha256").update(str).digest("hex");
+  return generatedHash;
 }
 
 export const rateLimiter = (
@@ -88,5 +85,6 @@ export const rateLimiter = (
     keyGenerator: createKey,
   });
 };
+
 export const hashString = (string) =>
   crypto.createHash("md5").update(string).digest("hex");

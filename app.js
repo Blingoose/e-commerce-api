@@ -40,7 +40,6 @@ const addNonce = (req, res, next) => {
 server.use(addNonce);
 
 server.set("trust proxy", 5);
-
 // ----- security middlewares -----
 
 // global rate limiter
