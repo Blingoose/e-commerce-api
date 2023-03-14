@@ -74,7 +74,8 @@ export const rateLimiter = (
     windowMs: durationInMilliseconds,
     max: maxConnections,
     message: errorMessage,
-    headers: true,
+    legacyHeaders: true,
+    standardHeaders: true,
   });
 };
 
