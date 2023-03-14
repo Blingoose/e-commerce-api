@@ -5,7 +5,9 @@ import connectDB from "./db/connectDB.js";
 import sessionStore from "./utils/session-store.js";
 import errorHandlerMiddleware from "./middleware/error-handler-middleware.js";
 import resetPasswordHelper from "./utils/reset-password-helper.js";
+import configureCloudinary from "./utils/cloudinaryConfig.js";
 import notFoundRoute from "./middleware/not-found-middleware.js";
+import addNonce from "./middleware/nonce-middleware.js";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import reviewRouter from "./routes/reviewRoutes.js";
@@ -17,25 +19,15 @@ import { rateLimiter } from "./utils/utils.js";
 import xss from "xss-clean";
 import cors from "cors";
 import mongoSanitize from "express-mongo-sanitize";
-import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 import helmet from "helmet";
-import crypto from "crypto";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 dotenv.config();
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET,
-});
+configureCloudinary();
 
 const server = express();
-const addNonce = (req, res, next) => {
-  res.locals.nonce = crypto.randomBytes(16).toString("base64");
-  next();
-};
 
 server.use(addNonce);
 
