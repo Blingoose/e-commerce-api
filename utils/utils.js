@@ -66,12 +66,14 @@ export const removeTokensFromCookies = (res) => {
 };
 
 function createKey(req) {
-  const ip = req.headers["x-forwarded-for"] || req.ip;
+  const ip = req.ip;
   const userAgent = req.headers["user-agent"];
   const str = `${ip}:${userAgent}`;
 
   console.log(str);
-  return crypto.createHash("sha256").update(str).digest("hex");
+  const abc = crypto.createHash("sha256").update(str).digest("hex");
+  console.log(abc);
+  return abc;
 }
 
 export const rateLimiter = (
