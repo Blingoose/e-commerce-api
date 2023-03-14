@@ -68,8 +68,9 @@ export const removeTokensFromCookies = (res) => {
 function createKey(req) {
   const ip = req.headers["x-forwarded-for"] || req.ip;
   const userAgent = req.headers["user-agent"];
-  const headers = JSON.stringify(req.headers);
-  const str = `${ip}:${userAgent}:${headers}`;
+  const str = `${ip}:${userAgent}`;
+
+  console.log(str);
   return crypto.createHash("sha256").update(str).digest("hex");
 }
 
