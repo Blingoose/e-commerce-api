@@ -39,7 +39,7 @@ const addNonce = (req, res, next) => {
 
 server.use(addNonce);
 
-server.set("trust proxy", 1);
+server.set("trust proxy", 2);
 server.get("/ip", (request, response) => response.send(request.ip));
 
 // ----- security middlewares -----
