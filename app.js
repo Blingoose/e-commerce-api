@@ -41,7 +41,7 @@ server.use(addNonce);
 
 server.set("trust proxy", 5);
 server.get("/ip", (request, response) => {
-  response.send(request.headers["x-forwarder-for"]);
+  response.send(request.socket.remoteAddress);
 });
 
 // ----- security middlewares -----
